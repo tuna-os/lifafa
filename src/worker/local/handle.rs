@@ -74,7 +74,6 @@ impl<E: Fn(WorkerEvent)> LocalWorker<E> {
                 self.account_id,
                 "On This Computer is not on a server: search already finds all of it",
             ),
-            MailRequest::TutaRecipients(ask) => ask.not_tuta(),
             MailRequest::ScanAttachments { folder_path } => emit(WorkerEvent::AttachmentsScanned {
                 folder_path,
                 added: 0,

@@ -162,7 +162,7 @@ modules:
   # tracked by git, so it comes from the checkout the build runs in: run
   #   git submodule update --init --recursive
   #   sh native/tuta-unofficial-sdk/prepare.sh
-  # before building (docs/BUILDING.md). Its crate sources are the
+  # before building (fork/HELPERS.md). Its crate sources are the
   # cargo-sources.json the SDK commits (its scripts/cargo-sources.sh).
   - name: hylki-tuta
     buildsystem: simple

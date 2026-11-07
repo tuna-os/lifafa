@@ -360,10 +360,4 @@ pub(crate) enum ComposeOutput {
     DirectoryError(String),
     /// The contacts modal asked for Hylki's Contacts view.
     ShowContacts,
-    /// Ask the Tuta account `account_id` who of the recipients is outside
-    /// Tuta.
-    TutaRecipients {
-        account_id: u32,
-        ask: crate::worker::TutaRecipientsAsk,
-    },
 }

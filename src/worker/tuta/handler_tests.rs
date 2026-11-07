@@ -66,6 +66,7 @@ fn worker(transport: Transport) -> (TutaWorker<impl Fn(WorkerEvent)>, Events) {
         push_live: false,
         polled: Instant::now(),
         open: None,
+        asks: super::recipients::Asks::detached(),
     };
     (worker, events)
 }

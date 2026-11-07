@@ -9,19 +9,21 @@
 //! Which recipients are outside Tuta, and the passwords the user's Tuta
 //! contacts already keep for them, the account says (`contact_passwords`).
 
+mod password;
+
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 use adw::prelude::*;
 use relm4::prelude::*;
 
-use super::messages::{ComposeInput, ComposeOutput};
+use super::messages::ComposeInput;
 use super::{Compose, ComposeWidgets};
 use crate::i18n::{i18n, ni18n_f};
-use crate::mail::tuta_password::{is_secure, strength, STRENGTH_MAX, STRENGTH_MEDIUM};
 use crate::models::{TutaDelivery, TutaPasswords, TutaRecipient};
 use crate::ui::recipient_row::PillMark;
 use crate::worker::TutaRecipientsAsk;
+use password::{is_secure, strength, STRENGTH_MAX, STRENGTH_MEDIUM};
 
 /// How long the recipient fields rest before the account is asked about
 /// them, so typing one address is one question, not one per keystroke.
@@ -85,6 +87,9 @@ pub(super) struct TutaCompose {
     pub(super) lookup_token: u64,
     /// A Send waits for the account's answer.
     pub(super) send_waiting: bool,
+    /// The recipient fields report their changes (see
+    /// [`Compose::wire_tuta_rows`]).
+    pub(super) wired: bool,
 }
 
 fn key(address: &str) -> String {
@@ -345,6 +350,7 @@ pub(super) struct TutaBar {
 
 impl TutaBar {
     pub(super) fn new(sender: &ComponentSender<Compose>) -> TutaBar {
+        add_style();
         let root = gtk::Box::new(gtk::Orientation::Horizontal, 8);
         root.add_css_class("tuta-bar");
         root.set_margin_start(12);
@@ -386,6 +392,26 @@ impl TutaBar {
     }
 }
 
+/// The pills' marks and the strength bar's colors (`tuta/style.css`), added
+/// once beside the app's stylesheet so that `styles.css` stays upstream's.
+fn add_style() {
+    thread_local!(static ADDED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) });
+    if ADDED.get() {
+        return;
+    }
+    let Some(display) = gtk::gdk::Display::default() else {
+        return;
+    };
+    let provider = gtk::CssProvider::new();
+    provider.load_from_string(include_str!("tuta/style.css"));
+    gtk::style_context_add_provider_for_display(
+        &display,
+        &provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+    ADDED.set(true);
+}
+
 /// Every recipient of the fields, `(name, address)`, typed ones too.
 fn recipients_of(widgets: &ComposeWidgets) -> Vec<(String, String)> {
     [&widgets.to_row, &widgets.cc_row, &widgets.bcc_row]
@@ -417,6 +443,7 @@ impl Compose {
         widgets: &ComposeWidgets,
         sender: &ComponentSender<Self>,
     ) {
+        self.wire_tuta_rows(widgets, sender);
         let idx = widgets.from_row.selected() as usize;
         let Some(account) = self.accounts.get(idx) else {
             return;
@@ -441,6 +468,20 @@ impl Compose {
         }
         self.refresh_tuta(widgets);
         self.lookup_soon(sender);
+    }
+
+    /// Have the recipient fields report each change as
+    /// [`ComposeInput::RecipientsChanged`], once, beside the composer's own
+    /// handlers: the first [`Self::follow_tuta_account`] runs after the
+    /// fields are filled, so the prefill is not reported.
+    fn wire_tuta_rows(&mut self, widgets: &ComposeWidgets, sender: &ComponentSender<Self>) {
+        if std::mem::replace(&mut self.tuta.wired, true) {
+            return;
+        }
+        for row in [&widgets.to_row, &widgets.cc_row, &widgets.bcc_row] {
+            let s = sender.input_sender().clone();
+            row.connect_changed(move |_| s.emit(ComposeInput::RecipientsChanged));
+        }
     }
 
     /// Put the toggle in `on` from the composer's side.
@@ -532,12 +573,9 @@ impl Compose {
             addresses: unasked.clone(),
             answer,
         };
-        // Without a host to take it, the question is let go unanswered,
-        // which reads below as "could not say".
-        let _ = sender.output(ComposeOutput::TutaRecipients {
-            account_id: self.tuta.account_id,
-            ask,
-        });
+        // With no worker for the account, the question is let go
+        // unanswered, which reads below as "could not say".
+        crate::worker::ask_recipients(self.tuta.account_id, ask);
         let generation = self.tuta.generation;
         let s = sender.input_sender().clone();
         gtk::glib::spawn_future_local(async move {
@@ -759,10 +797,7 @@ fn strength_bar() -> gtk::LevelBar {
         bar.remove_offset_value(Some(name));
     }
     bar.add_offset_value("password-weak", f64::from(STRENGTH_MEDIUM) - 0.5);
-    bar.add_offset_value(
-        "password-fair",
-        f64::from(crate::mail::tuta_password::STRENGTH_SECURE) - 0.5,
-    );
+    bar.add_offset_value("password-fair", f64::from(password::STRENGTH_SECURE) - 0.5);
     bar.add_offset_value("password-strong", f64::from(STRENGTH_MAX));
     bar.set_width_request(72);
     bar.set_valign(gtk::Align::Center);

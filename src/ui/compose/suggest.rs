@@ -491,7 +491,6 @@ pub(super) fn wire_recipient_rows(widgets: &ComposeWidgets, sender: &ComponentSe
             row.remove_css_class("error");
             s.input_sender().emit(ComposeInput::Suggest(field));
             s.input_sender().emit(ComposeInput::MarkFieldsDirty);
-            s.input_sender().emit(ComposeInput::RecipientsChanged);
         });
 
         // Close the popover when the field loses focus.

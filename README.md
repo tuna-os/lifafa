@@ -1,6 +1,3 @@
-> **This is the fork behind Lifafa**, the TunaOS office suite's email client: Hylki with native Tuta and Proton Mail accounts.
-> It follows upstream daily; see [fork/README.md](fork/README.md).
-
 <p align="center">
   <img src="data/repo/logo.png" width="120" alt="Hylki logo">
 </p>

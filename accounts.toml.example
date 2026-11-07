@@ -26,9 +26,8 @@ password = "app-specific-password"
 #   Outlook outlook.office365.com
 #   Fastmail imap.fastmail.com
 #
-# Proton Mail can be reached two ways. Through Proton Bridge running on this
-# machine, as an IMAP account: take the host, ports and generated password
-# from the Bridge window:
+# Proton Mail is reached through Proton Bridge running on this machine. Take the
+# host, ports and generated password from the Bridge window:
 #
 #   imap_host = "127.0.0.1"
 #   imap_port = 1143         # STARTTLS; Bridge's default
@@ -37,30 +36,3 @@ password = "app-specific-password"
 #
 # Bridge presents a certificate it signed itself, which is accepted for
 # 127.0.0.1/localhost only — connections to any other host are fully verified.
-#
-# Tuta has no IMAP or SMTP; Hylki reaches it through its bundled hylki-tuta
-# helper. Add it from Settings or the welcome wizard (Provider: Tuta), which
-# signs in and keeps the session in the keyring. The password is never stored,
-# here or in the keyring, so a stanza written by hand only names the account
-# and still has to be signed in from Settings:
-#
-#   [[accounts]]
-#   name = "Tuta"
-#   email = "you@tuta.com"
-#   protocol = "tuta"
-#   imap_host = ""           # no server: the helper knows Tuta's
-#   username = "you@tuta.com"
-#
-# Proton Mail also works without Bridge, through the bundled hylki-proton
-# helper. Add it from Settings or the welcome wizard (Provider: Proton Mail),
-# which signs in, asks for an authenticator code, a mailbox password or a
-# CAPTCHA when the account needs one, and keeps the session in the keyring.
-# Neither password is ever stored, so a stanza written by hand only names the
-# account and still has to be signed in from Settings:
-#
-#   [[accounts]]
-#   name = "Proton"
-#   email = "you@proton.me"
-#   protocol = "proton"
-#   imap_host = ""           # no server: the helper knows Proton's
-#   username = "you@proton.me"

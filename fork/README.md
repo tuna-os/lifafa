@@ -26,9 +26,16 @@ off on tuna-os/hylki; report problems on the
 | `import-from-hylki.sh` | Copies upstream Hylki's accounts, settings and passwords into Lifafa |
 | `MAINTAINING.md` | The fork's boundary and upstreaming policy |
 | `touchpoints.txt`, `check-touchpoints.sh` | The upstream files the fork modifies, and the check that keeps that list honest |
+| `upstream-candidates.md` | Provider-neutral changes drafted for hyprlab/hylki, and their state |
+| `ACCOUNTS.md` | The user documentation for Tuta and Proton Mail accounts |
+| `HELPERS.md` | Building, packaging and licences of the two helpers |
+| `CHANGELOG.md` | The fork's own changes |
 
 The workflows are `.github/workflows/upstream-sync.yml` and
-`.github/workflows/fork-release.yml`.
+`.github/workflows/fork-release.yml`. `.github/README.md` is the fork's front
+page on GitHub, which shows it in place of upstream's `README.md`; the fork's
+documentation lives here rather than in upstream's files, so that the daily
+merge never conflicts on it.
 
 ## How the rebrand works
 
@@ -167,7 +174,7 @@ The workflow keeps its builds fast with caches:
 
 A local build follows the same steps as `fork-release.yml`. It needs
 `flatpak-builder`, the GNOME 50 SDK, and the `rust-stable` and `golang`
-extensions for 25.08 (see [docs/BUILDING.md](../docs/BUILDING.md)):
+extensions for 25.08 (see [HELPERS.md](HELPERS.md)):
 
 ```sh
 git submodule update --init --recursive

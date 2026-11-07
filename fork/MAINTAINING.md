@@ -130,7 +130,7 @@ no Tuta or Proton account configured. If it would, it goes upstream.
     matching change in `src/worker/proton/wire.rs` in the same commit as the
     bump.
 - **Licence:** both helpers are GPL-3.0-or-later, compatible with Hylki's
-  AGPL-3.0-or-later (see `docs/LICENSE.md`).
+  AGPL-3.0-or-later (see [HELPERS.md](HELPERS.md#licences)).
 - **Terms of service:** neither provider endorses third-party clients built
   this way. That is why upstream declined them, and users of this fork should
   know it. The fork's README says so.

@@ -1530,6 +1530,7 @@ fn live_start() -> Option<LiveStart> {
         push_live: false,
         polled: std::time::Instant::now(),
         open: None,
+        asks: super::recipients::Asks::detached(),
     };
     let live = Live {
         w,
@@ -1710,7 +1711,7 @@ fn live_tuta_reply_threads() {
 /// sweep for the token removes whatever a failed step left, then ends the
 /// session, also when the test panics. The helper must be on PATH as
 /// `hylki-tuta`: a link to `tuta-helper` built in
-/// `native/tuta-unofficial-sdk` (docs/BUILDING.md).
+/// `native/tuta-unofficial-sdk` (fork/HELPERS.md).
 #[test]
 #[ignore]
 fn live_tuta_account() {

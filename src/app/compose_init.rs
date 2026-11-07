@@ -340,9 +340,6 @@ impl AppModel {
                 }
                 ComposeOutput::DirectoryError(text) => AppMsg::DirectoryError(text),
                 ComposeOutput::ShowContacts => AppMsg::ShowContactsPage,
-                ComposeOutput::TutaRecipients { account_id, ask } => {
-                    AppMsg::TutaRecipients { account_id, ask }
-                }
             })
     }
 
