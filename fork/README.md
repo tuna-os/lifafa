@@ -13,9 +13,8 @@ which installs beside upstream Hylki and shares none of its state.
 
 Neither Tuta nor Proton endorses third-party clients built this way; use them
 knowing that. What belongs in the fork and what goes upstream, and how
-touchpoints are kept small, is in [MAINTAINING.md](MAINTAINING.md). Issues are
-off on tuna-os/lifafa; report problems on the
-[suite's tracker](https://github.com/tuna-os/gtk-office-suite/issues).
+touchpoints are kept small, is in [MAINTAINING.md](MAINTAINING.md). Report
+problems on [this repository's issues](https://github.com/tuna-os/lifafa/issues).
 
 ## What is in this directory
 
@@ -71,7 +70,7 @@ nothing else; `fork-release.yml` and `import-from-hylki.sh` read them through
 - **Credits**: the About window's footer reads "Built on Hylki by hyprlab",
   the coffee row says it goes to Hylki's author, and the contributor lists
   are upstream's. Hylki's Discord and email rows are dropped; questions go to
-  the suite's bug tracker. The metainfo credits Hylki in its second paragraph.
+  the fork's bug tracker. The metainfo credits Hylki in its second paragraph.
 - **Icon**: `fork/icons/org.tunaos.lifafa.svg`, an envelope on the suite's
   blue pad, replaces Hylki's icon in the launcher's hicolor icons, the in-app
   icon resource and the PNG the app embeds for Settings → App icon.
@@ -87,8 +86,10 @@ nothing else; `fork-release.yml` and `import-from-hylki.sh` read them through
   paragraph naming the Hanthor Office Suite and one crediting Hylki, then
   upstream's description under the app's name. The releases stay as upstream
   wrote them: they are the history of the code being built, renames included.
-- **Links**: the About window, the welcome page and the metainfo homepage and
-  bug tracker point at the suite; the source link points here.
+- **Links**: the About window's website and the metainfo homepage point at
+  the suite; the About window's and the metainfo's bug tracker and the
+  welcome page's link point at this repository's issues; the source link
+  points here.
 - **Manifest**: `fork/org.tunaos.lifafa.yml` is written from upstream's
   `co.hyprlab.Hylki.yml` through `tools/local-manifest.sh`. Upstream's pins
   a tagged commit of hyprlab/hylki, which would build without the rebrand, so
@@ -126,10 +127,9 @@ sweep.
 4. If all of that passed, it pushes.
 
 If any step fails, nothing is pushed and the run fails; its summary names the
-step that failed and any conflicting files. Issues are off on tuna-os/lifafa,
-so the failed run is the alert. If issues are turned on, one issue labelled
-`upstream-sync` is also opened, or updated if one is already open, and the next
-clean run closes it.
+step that failed and any conflicting files. It also opens one issue labelled
+`upstream-sync`, or updates the one already open, and the next clean run
+closes it.
 
 `GITHUB_TOKEN` may not push a commit that changes `.github/workflows`. When
 upstream changes its workflows, the push fails and the run says so. Merge

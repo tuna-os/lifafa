@@ -43,7 +43,7 @@ SUMMARY='Email client for the GNOME desktop'
 DEVELOPER_NAME='Hanthor Contributors'
 SUITE_NAME='Hanthor Office Suite'
 HOMEPAGE=https://github.com/tuna-os/gtk-office-suite
-BUGTRACKER=https://github.com/tuna-os/gtk-office-suite/issues
+BUGTRACKER=https://github.com/tuna-os/lifafa/issues
 SOURCE_URL=https://github.com/tuna-os/lifafa
 # The app icon; its 256 and 512 pixel renders sit beside it as -256.png and
 # -512.png (rsvg-convert -w N -h N).

@@ -13,6 +13,11 @@ since the last tag ([MAINTAINING.md](MAINTAINING.md#releases)).
   The release bundles now update from that repository too. An install made
   from a v1.47.1-tuna5 or earlier bundle never updates: switch it over as
   [Updates](README.md#updates) shows, keeping its accounts and settings.
+- **Changed: the repository is now tuna-os/lifafa.** The About window's
+  source link points at [tuna-os/lifafa](https://github.com/tuna-os/lifafa),
+  and its bug tracker, the welcome page and the metainfo send problems to
+  [its issues](https://github.com/tuna-os/lifafa/issues) instead of the
+  office suite's tracker.
 - **Added: confidential Tuta mail to anyone.** A Tuta account's composer
   has a **Confidential** toggle, on by default as in Tuta (Settings →
   Accounts → **Send confidential by default**). Confidential mail to an
