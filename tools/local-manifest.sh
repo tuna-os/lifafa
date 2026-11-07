@@ -40,7 +40,8 @@ manifest = open(src).read()
 # output, the signed repo and the Tuta helper's host-only weight (its build
 # output and the tutanota checkout only sdk-prepare.py reads, under
 # native/tuta in older trees and native/tuta-unofficial-sdk since) out of the
-# copy flatpak-builder makes, and a Proton helper built on the host with it.
+# copy flatpak-builder makes, and a Proton helper built on the host with it
+# (in native/proton in older trees, native/proton-unofficial-sdk since).
 pinned = re.compile(
     r"      - type: git\n"
     r"        url: https://github\.com/hyprlab/hylki\.git\n"
@@ -63,10 +64,13 @@ local = (
     "          - native/tuta-unofficial-sdk/target\n"
     "          - native/tuta-unofficial-sdk/upstream\n"
     "          - native/proton/hylki-proton\n"
+    "          - native/proton-unofficial-sdk/proton-helper\n"
+    "          - native/proton-unofficial-sdk/hylki-proton\n"
 )
 # Up to three modules build from this repository: the app, its Tuta helper
 # (native/tuta-unofficial-sdk, native/tuta before it) and its Proton helper
-# (native/proton). A manifest from before a helper has no module for it.
+# (native/proton-unofficial-sdk, native/proton before it). A manifest from
+# before a helper has no module for it.
 has_helper = "  - name: hylki-tuta\n" in manifest
 has_proton = "  - name: hylki-proton\n" in manifest
 expected = 1 + has_helper + has_proton
@@ -97,6 +101,17 @@ if has_helper:
         manifest, count = re.subn(block, "", manifest)
         if count != 1:
             raise SystemExit(f"expected one helper source matching {block!r}, removed {count}")
+
+if has_proton:
+    # Likewise the Proton helper's submodule (and the comment above its
+    # source), which the pinned source leaves out; a manifest from before
+    # the submodule has no such source.
+    manifest = re.sub(
+        r"(?:      #.*\n)*"
+        r"      - type: dir\n"
+        r"        path: native/proton-unofficial-sdk\n"
+        r"(?:        .*\n)+",
+        "", manifest)
 
 # The cargo-sources.json files are referenced relative to the manifest, which
 # is about to move elsewhere.

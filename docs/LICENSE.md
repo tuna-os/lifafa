@@ -61,9 +61,11 @@ GmbH.
 
 ## Proton helper
 
-Native Proton Mail accounts go through `hylki-proton`, a helper program built
-from `native/proton` and shipped beside `hylki` in every package. It
-originates in [Postcard](https://github.com/gxanshu/postcard) and its
+Native Proton Mail accounts go through `hylki-proton`, a helper program
+shipped beside `hylki` in every package: `proton-helper` from
+[proton-unofficial-sdk](https://github.com/tuna-os/proton-unofficial-sdk)
+(the `native/proton-unofficial-sdk` submodule), installed under that name.
+It originates in [Postcard](https://github.com/gxanshu/postcard) and its
 [tuna-os fork](https://github.com/tuna-os/postcard), and is licensed under
 the GNU General Public License v3.0 or later (GPL-3.0-or-later), which is
 compatible with the AGPL-3.0. It runs as a separate program under its own
@@ -71,7 +73,7 @@ licence. It links Proton's
 [go-proton-api](https://github.com/ProtonMail/go-proton-api),
 [gopenpgp](https://github.com/ProtonMail/gopenpgp) and their dependencies,
 under the MIT, BSD-2-Clause and BSD-3-Clause licences; each one's licence
-text is in `native/proton/vendor`. Hylki is not affiliated with or endorsed
-by Proton AG.
+text is in `native/proton-unofficial-sdk/vendor`. Hylki is not affiliated
+with or endorsed by Proton AG.
 
 © 2026 Hyprlab

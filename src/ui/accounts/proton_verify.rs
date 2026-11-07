@@ -2,7 +2,8 @@
 //! a new client or network until a person solves a challenge on
 //! verify.proton.me. That page runs here in a view of its own, the way
 //! Proton's own apps embed it, and the token it posts back on success is
-//! what the retried sign-in sends (`native/proton/README.md`, `login`).
+//! what the retried sign-in sends (`native/proton-unofficial-sdk/README.md`,
+//! `login`).
 //!
 //! The view is the only one in Hylki that runs a site's JavaScript: the
 //! challenge is Proton's page, not mail, and does not work without it. It

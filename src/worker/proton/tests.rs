@@ -1040,8 +1040,9 @@ fn trash_sent_copy(client: &HelperClient, token: &str) -> Result<usize, HelperEr
 /// `PROTON_LIVE_EXTERNAL_TO` under a subject carrying a random token, then
 /// moves its copy from Sent to Trash -- whether or not the send succeeded
 /// -- and checks Sent holds no copy anymore. The helper must be on PATH
-/// (`go build -o <dir>/hylki-proton` in `native/proton`). The session it
-/// makes is ended again before it returns, and is never printed.
+/// (`go build -o <dir>/hylki-proton ./cmd/proton-helper` in
+/// `native/proton-unofficial-sdk`). The session it makes is ended again
+/// before it returns, and is never printed.
 #[test]
 #[ignore]
 fn live_proton_account() {

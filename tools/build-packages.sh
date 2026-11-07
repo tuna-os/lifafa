@@ -83,19 +83,29 @@ build_tuta_helper() {
     ( cd "$ROOT/$TUTA_DIR" && cargo build --release --locked --bin "$TUTA_BIN" )
 }
 
-# The Proton helper (native/proton) is Go, built from the modules committed
-# in native/proton/vendor. Its go.mod names the oldest Go it builds with;
-# GOTOOLCHAIN=auto lets an older system Go (Debian's) fetch that one. A tree
-# from before the helper has no native/proton.
+# The Proton helper is Go, built from the modules committed in vendor/: it is
+# proton-helper from proton-unofficial-sdk (the native/proton-unofficial-sdk
+# submodule), packaged as hylki-proton, the name the app looks for; older
+# trees built it from native/proton. Its go.mod names the oldest Go it builds
+# with; GOTOOLCHAIN=auto lets an older system Go (Debian's) fetch that one. A
+# tree from before the helper has neither.
 HAS_PROTON=""
-[ -f "$ROOT/native/proton/go.mod" ] && HAS_PROTON=1
+PROTON_DIR=""
+if [ -f "$ROOT/native/proton-unofficial-sdk/go.mod" ]; then
+    PROTON_DIR=native/proton-unofficial-sdk
+    PROTON_PKG=./cmd/proton-helper
+elif [ -f "$ROOT/native/proton/go.mod" ]; then
+    PROTON_DIR=native/proton
+    PROTON_PKG=.
+fi
+[ -n "$PROTON_DIR" ] && HAS_PROTON=1
 
 build_proton_helper() {
     [ -n "$HAS_PROTON" ] || return 0
     echo "==> Building the Proton helper"
-    ( cd "$ROOT/native/proton" \
+    ( cd "$ROOT/$PROTON_DIR" \
         && GOFLAGS=-mod=vendor GOTOOLCHAIN="${GOTOOLCHAIN:-auto}" \
-            go build -trimpath -buildvcs=false -o hylki-proton . )
+            go build -trimpath -buildvcs=false -o hylki-proton "$PROTON_PKG" )
 }
 
 # The payload both packages carry, staged into $1: the release binary, the
@@ -109,7 +119,7 @@ stage_payload() {
         cp "$ROOT/$TUTA_DIR/target/release/$TUTA_BIN" "$stage/hylki-tuta"
     fi
     if [ -n "$HAS_PROTON" ]; then
-        cp "$ROOT/native/proton/hylki-proton" "$stage/hylki-proton"
+        cp "$ROOT/$PROTON_DIR/hylki-proton" "$stage/hylki-proton"
     fi
     cp "$ROOT/LICENSE"                          "$stage/LICENSE"
     msgfmt --desktop --template="$ROOT/data/$APP_ID.desktop" -d "$ROOT/po" -o "$stage/$APP_ID.desktop"
@@ -184,7 +194,8 @@ build_deb() {
                             --exclude=./native/tuta-unofficial-sdk/target \
                             --exclude=./native/tuta-unofficial-sdk/upstream/target \
                             --exclude=./native/tuta-unofficial-sdk/upstream/tuta-repo \
-                            --exclude=./native/proton/hylki-proton -cf - . \
+                            --exclude=./native/proton/hylki-proton \
+                            --exclude=./native/proton-unofficial-sdk/hylki-proton -cf - . \
                     | tar -C /build -xf -
                 exec /build/tools/build-packages.sh deb
             '
@@ -257,8 +268,8 @@ build_deb() {
             printf 'License: GPL-3.0-or-later\n See /usr/share/common-licenses/GPL-3.\n'
         fi
         if [ -n "$HAS_PROTON" ]; then
-            printf '\nFiles: usr/bin/hylki-proton\nCopyright: The Postcard authors; Proton AG and others for the Go modules it links\n'
-            printf 'License: GPL-3.0-or-later AND MIT AND BSD-2-Clause AND BSD-3-Clause\n See /usr/share/common-licenses/GPL-3; the Go modules'"'"' own licences are in native/proton/vendor of the source.\n'
+            printf '\nFiles: usr/bin/hylki-proton\nCopyright: The proton-unofficial-sdk and Postcard authors; Proton AG and others for the Go modules it links\n'
+            printf 'License: GPL-3.0-or-later AND MIT AND BSD-2-Clause AND BSD-3-Clause\n See /usr/share/common-licenses/GPL-3; the Go modules'"'"' own licences are in %s/vendor of the source.\n' "$PROTON_DIR"
         fi
     } > "$pkg/usr/share/doc/hylki/copyright"
 

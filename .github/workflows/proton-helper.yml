@@ -1,18 +1,24 @@
-name: Proton helper tests
+name: Proton helper smoke check
 
-# The Proton helper (native/proton) is a Go module of its own, built from the
-# dependencies committed in native/proton/vendor. Its tests run against
-# go-proton-api's in-process test server, so they need no account and no
-# network beyond fetching the toolchain.
+# The Proton helper is proton-helper from proton-unofficial-sdk, the
+# native/proton-unofficial-sdk submodule. That repository runs its own
+# gofmt, vet and tests on x86_64 and aarch64, against go-proton-api's
+# in-process server (github.com/tuna-os/proton-unofficial-sdk), so this only
+# checks what the fork relies on: the submodule sits on a release tag, the
+# helper builds offline from the SDK's vendor/ tree, and run as hylki-proton
+# (the name the app looks for) it answers every operation
+# src/worker/proton/wire.rs sends with the envelope the app parses.
 
 on:
   push:
     paths:
-      - 'native/proton/**'
+      - 'native/proton-unofficial-sdk'
+      - '.gitmodules'
       - '.github/workflows/proton-helper.yml'
   pull_request:
     paths:
-      - 'native/proton/**'
+      - 'native/proton-unofficial-sdk'
+      - '.gitmodules'
       - '.github/workflows/proton-helper.yml'
   workflow_dispatch:
 
@@ -20,44 +26,57 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: go test (${{ matrix.runner }})
-    strategy:
-      fail-fast: false
-      matrix:
-        # aarch64 too: every package ships the helper for both.
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+  smoke:
+    name: proton-helper as hylki-proton
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: The submodule is on a release tag
+        working-directory: native/proton-unofficial-sdk
+        run: |
+          git fetch --tags --quiet origin
+          git describe --exact-match --tags HEAD
 
       - uses: actions/setup-go@v5
         with:
           # The oldest Go the module builds with, as the packages do.
-          go-version-file: native/proton/go.mod
+          go-version-file: native/proton-unofficial-sdk/go.mod
           cache: false
 
-      - name: Formatting
-        working-directory: native/proton
-        run: |
-          unformatted="$(gofmt -l . | grep -v '^vendor/' || true)"
-          if [ -n "$unformatted" ]; then
-            echo "not gofmt-formatted:" >&2
-            echo "$unformatted" >&2
-            exit 1
-          fi
-
-      - name: Vet
-        # With -mod=vendor, go also refuses a vendor tree that no longer
-        # matches go.mod.
-        working-directory: native/proton
-        run: go vet -mod=vendor ./...
-
-      - name: Test
-        working-directory: native/proton
+      - name: Build the helper offline
+        working-directory: native/proton-unofficial-sdk
         env:
           GOFLAGS: -mod=vendor
           GOPROXY: 'off'
-        run: go test ./...
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          go build -trimpath -buildvcs=false -o "$RUNNER_TEMP/bin/proton-helper" ./cmd/proton-helper
+
+      - name: It answers as hylki-proton
+        # No account and no network: a newer protocol version, and each
+        # operation the app sends with its fields or its session missing,
+        # must come back as the error envelope the old in-tree helper gave
+        # and src/worker/proton/wire.rs knows.
+        run: |
+          ln -s proton-helper "$RUNNER_TEMP/bin/hylki-proton"
+          ask() {
+            reply="$(printf '%s' "$1" | "$RUNNER_TEMP/bin/hylki-proton")"
+            echo "$1 -> $reply"
+            test "$reply" = "{\"version\":1,\"error\":{\"code\":\"$2\"}}"
+          }
+          ask '{"version":2,"op":"login"}' unsupported_version
+          ask '{"version":1,"op":"login"}' invalid_request
+          ask '{"version":1,"op":"sync"}' invalid_request
+          ask '{"version":1,"op":"message"}' invalid_id
+          ask '{"version":1,"op":"message","id":"x"}' session_invalid
+          ask '{"version":1,"op":"mark_read"}' invalid_request
+          ask '{"version":1,"op":"mark_read","ids":["a"],"is_read":true}' session_invalid
+          ask '{"version":1,"op":"move","ids":["a"],"destination":"3"}' session_invalid
+          ask '{"version":1,"op":"star","ids":["a"],"is_starred":true}' session_invalid
+          ask '{"version":1,"op":"send"}' invalid_request
+          ask '{"version":1,"op":"revoke"}' session_invalid

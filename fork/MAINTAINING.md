@@ -30,7 +30,7 @@ There are three rules:
 | Security hardening that is not Tuta or Proton specific (cache encryption at rest, OpenPGP, link-tracker stripping, ...) | **Upstream** | The same route |
 | A seam the fork needs in shared code (a generic hook, an outbox state, a stable message key) that has a use beyond Tuta and Proton | **Upstream**, phrased provider-neutrally | Propose it without mentioning Tuta or Proton; if upstream declines, it stays in the fork as a touchpoint |
 | Native Tuta accounts | **Fork only** | [tuta-unofficial-sdk](https://github.com/tuna-os/tuta-unofficial-sdk) (the `native/tuta-unofficial-sdk` submodule), `src/worker/tuta*` |
-| Native Proton accounts | **Fork only** | `native/proton`, `src/worker/proton*` |
+| Native Proton accounts | **Fork only** | [proton-unofficial-sdk](https://github.com/tuna-os/proton-unofficial-sdk) (the `native/proton-unofficial-sdk` submodule), `src/worker/proton*` |
 | Shared helper plumbing for Tuta and Proton | **Fork only** | `src/worker/helper*` |
 | Rebranding, fork CI, release and sync workflows | **Fork only** | `fork/`, `.github/workflows/{upstream-sync,fork-release,tuta-helper,proton-helper}.yml` |
 
@@ -117,8 +117,18 @@ no Tuta or Proton account configured. If it would, it goes upstream.
     release tag, which `.github/workflows/tuta-helper.yml` checks.
   - Its README lists every SDK patch and why it exists, and documents the
     protocol `src/worker/tuta*` speaks.
-- **Proton:** `native/proton`, a Go helper over Proton's own go-proton-api
-  and gopenpgp, with vendored modules.
+- **Proton:** [tuna-os/proton-unofficial-sdk](https://github.com/tuna-os/proton-unofficial-sdk),
+  the `native/proton-unofficial-sdk` submodule: a Go library over Proton's
+  own go-proton-api and gopenpgp, with vendored modules, and the
+  `proton-helper` JSON front end Hylki talks to. Every package installs
+  `proton-helper` under the name `hylki-proton`, which the app looks for; it
+  behaves the same under either name.
+  - Proton changes (protocol, tests, dependency bumps) go to that
+    repository, with its own CI. The fork only bumps the submodule to a
+    release tag, which `.github/workflows/proton-helper.yml` checks.
+  - A release whose `CHANGELOG.md` lists a protocol change needs the
+    matching change in `src/worker/proton/wire.rs` in the same commit as the
+    bump.
 - **Licence:** both helpers are GPL-3.0-or-later, compatible with Hylki's
   AGPL-3.0-or-later (see `docs/LICENSE.md`).
 - **Terms of service:** neither provider endorses third-party clients built

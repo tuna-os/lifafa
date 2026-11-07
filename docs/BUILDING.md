@@ -73,25 +73,30 @@ as `hylki-tuta`.
 ## Proton helper
 
 Proton Mail accounts that sign in natively (rather than through Proton Mail
-Bridge) go through `hylki-proton`, a separate Go program built from
-`native/proton` (GPL-3.0-or-later). It is found the same way as the Tuta
-helper: next to `hylki`, then on `PATH`. Without it, everything but native
-Proton accounts works.
+Bridge) go through `hylki-proton`, a separate Go program (GPL-3.0-or-later):
+`proton-helper` from [proton-unofficial-sdk](https://github.com/tuna-os/proton-unofficial-sdk),
+the `native/proton-unofficial-sdk` submodule, installed under the name
+`hylki-proton`. It behaves the same under either name. It is found the same
+way as the Tuta helper: next to `hylki`, then on `PATH`. Without it,
+everything but native Proton accounts works.
 
-It needs Go 1.26.1 or newer (the `go` line in `native/proton/go.mod`) and
-nothing from the network: its dependencies are committed in
-`native/proton/vendor`.
+It needs the submodule checked out (`git submodule update --init`), Go
+1.26.1 or newer (the `go` line in `native/proton-unofficial-sdk/go.mod`) and
+nothing from the network: its dependencies are committed in the SDK's
+`vendor/`.
 
 ```sh
-(cd native/proton && go build -mod=vendor -trimpath -o hylki-proton .)
-install -Dm755 native/proton/hylki-proton ~/.local/bin/hylki-proton
+(cd native/proton-unofficial-sdk && go build -mod=vendor -trimpath -o hylki-proton ./cmd/proton-helper)
+install -Dm755 native/proton-unofficial-sdk/hylki-proton ~/.local/bin/hylki-proton
 ```
 
-Its tests run offline against go-proton-api's in-process server with
-`go test -mod=vendor ./...` in `native/proton`
-(`.github/workflows/proton-helper.yml`). After changing `go.mod`, run
-`go mod tidy && go mod vendor` there and commit both. `native/proton/README.md`
-describes the JSON it speaks.
+The SDK repository has its own tests, which run offline against
+go-proton-api's in-process server, and its own CI; dependency bumps and
+`go mod vendor` happen there. Its README describes the JSON it speaks.
+Moving to a new release is a submodule bump to its tag.
+`.github/workflows/proton-helper.yml` checks that the submodule sits on a
+release tag, that the helper builds offline, and that run as `hylki-proton`
+it answers every operation the app sends with the envelope the app parses.
 
 ## Translations
 
@@ -116,11 +121,13 @@ and its CI fails when it is stale).
 
 The `hylki-tuta` module builds `tuta-helper` into `/app/bin` beside `hylki`,
 with `hylki-tuta` a symlink to it,
-and the `hylki-proton` module builds the Proton helper there with the
+and the `hylki-proton` module builds `proton-helper` there, with
+`hylki-proton` a symlink to it, using the
 `org.freedesktop.Sdk.Extension.golang//25.08` SDK extension (install it
-beside the Rust one), offline from `native/proton/vendor`.
-Prepare the Tuta SDK first, as above: the generated tree is not in git, so
-the manifest takes it from the checkout it is built in. To build the working
+beside the Rust one), offline from `native/proton-unofficial-sdk/vendor`.
+Check the submodules out and prepare the Tuta SDK first, as above: neither
+the submodules nor the generated tree are in the pinned git source, so
+the manifest takes them from the checkout it is built in. To build the working
 tree rather than the tagged release, write a local manifest:
 
 ```sh
@@ -149,8 +156,8 @@ Both packages carry the Tuta helper as `/usr/bin/hylki-tuta`; the script
 prepares the Tuta SDK and builds the helper itself, so the submodules have
 to be checked out. They carry the Proton helper as `/usr/bin/hylki-proton`
 too, so the RPM build needs `go` on the host; the Debian container installs
-Debian's, and a Go older than `native/proton/go.mod` asks for fetches the
-right one (`GOTOOLCHAIN=auto`).
+Debian's, and a Go older than `native/proton-unofficial-sdk/go.mod` asks for
+fetches the right one (`GOTOOLCHAIN=auto`).
 
 ## AppImage
 

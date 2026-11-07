@@ -186,13 +186,15 @@ modules:
         dest: native/tuta-unofficial-sdk/prepared
       # Vendored crate sources for the helper, committed by the SDK.
       - native/tuta-unofficial-sdk/cargo-sources.json
-  # The Proton helper (native/proton, GPL-3.0-or-later): a separate Go
-  # program the app runs for Proton accounts, found on PATH in /app/bin. It
-  # comes from the same tagged commit as the app. The build has no network,
-  # so its modules are the ones committed in native/proton/vendor.
+  # The Proton helper (GPL-3.0-or-later): a separate program the app runs
+  # for Proton accounts, found next to the hylki executable. It is
+  # proton-helper from proton-unofficial-sdk (the
+  # native/proton-unofficial-sdk submodule), installed under the name the
+  # app looks for, hylki-proton. The build has no network, so its modules
+  # are the ones the SDK commits in vendor/.
   - name: hylki-proton
     buildsystem: simple
-    subdir: native/proton
+    subdir: native/proton-unofficial-sdk
     build-options:
       append-path: /usr/lib/sdk/golang/bin
       env:
@@ -202,14 +204,20 @@ modules:
         GOCACHE: /run/build/hylki-proton/go-cache
         GOPATH: /run/build/hylki-proton/go
     build-commands:
-      - go build -trimpath -buildvcs=false -o hylki-proton .
-      - install -Dm755 hylki-proton /app/bin/hylki-proton
+      - go build -trimpath -buildvcs=false -o proton-helper ./cmd/proton-helper
+      - install -Dm755 proton-helper /app/bin/proton-helper
+      - ln -s proton-helper /app/bin/hylki-proton
     sources:
       - type: git
         url: https://github.com/hyprlab/hylki.git
         tag: v1.47.1
         commit: 3e4044407543f12792f39372b0f8f92ffd066e84
         disable-submodules: true
+      # The submodule is not part of the git source above, so it comes from
+      # the checkout the build runs in (git submodule update --init).
+      - type: dir
+        path: native/proton-unofficial-sdk
+        dest: native/proton-unofficial-sdk
   - name: hylki
     buildsystem: simple
     build-commands:
