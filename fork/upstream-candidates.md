@@ -3,7 +3,7 @@
 Provider-neutral changes the fork would like hyprlab/hylki to take, drafted
 here and not yet opened. Each one, once merged upstream, takes files off
 [`touchpoints.txt`](touchpoints.txt) (fork/MAINTAINING.md, "Sending a change
-upstream"). A draft names its branch on tuna-os/hylki when one exists; open
+upstream"). A draft names its branch on tuna-os/lifafa when one exists; open
 the pull request from that branch to `hyprlab:main` after rebasing it onto
 `upstream/main`, and move the entry to "Opened" with its number.
 
@@ -16,7 +16,7 @@ the pull request from that branch to `hyprlab:main` after rebasing it onto
 - **Touchpoints it removes once merged:** `src/app/tray/indicator.rs`,
   `src/desktop/platform.rs`, `src/mcp/server.rs`,
   `src/ui/message_view/tests/document.rs`.
-- **Fork issue:** tuna-os/hylki#6.
+- **Fork issue:** tuna-os/lifafa#6.
 
 Body:
 
