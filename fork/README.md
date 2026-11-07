@@ -184,7 +184,14 @@ The workflow keeps its builds fast with caches:
   target directory of its own, unless `upstream_profile` is ticked. Tags and
   the daily build of `main`, which keeps the tags' cache warm, use upstream's
   release profile (thin LTO, one codegen unit). When the target directories
-  pass the cap, the fast profile's is dropped first.
+  pass the cap, the fast profile's is dropped first. Measured on GitHub's
+  runners with warm caches, a change to the app crate alone compiles in
+  2m04s (x86_64) and 2m29s (aarch64) with the fast profile, against 7m09s
+  and 8m40s with upstream's; building every crate of the app from cold takes
+  5m42s and 4m43s. The fast binary is about 18% larger (48.8 MB against
+  41.3 MB on x86_64, 44.2 MB against 37.8 MB on aarch64); its run-time speed
+  was not measured, and it is never published. Both target directories
+  together make the cached state about 1.45 GB per arch instead of 1.05 GB.
 
 A local build follows the same steps as `fork-release.yml`. It needs
 `flatpak-builder`, the GNOME 50 SDK, and the `rust-stable` and `golang`
