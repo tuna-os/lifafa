@@ -13,7 +13,7 @@ keeps it current ([Updates](../fork/README.md#updates), which also covers
 moving an install made from a v1.47.1-tuna5 or earlier bundle):
 
 ```sh
-flatpak install --user https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakref
+flatpak install --user https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakref
 ```
 
 - [Hylki's README](../README.md): the app, its features and documentation.

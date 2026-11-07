@@ -13,7 +13,7 @@
 #   <bundle-dir>  where the bundles are written
 #
 # Environment: GPG_HOMEDIR, a keyring holding the signing key's secret part;
-# BASE_URL, where <site> is served (default https://tuna-os.github.io/hylki);
+# BASE_URL, where <site> is served (default https://tuna-os.github.io/lifafa);
 # ARCHES (default "x86_64 aarch64"); PRUNE_DEPTH, the earlier commits kept
 # per arch for `flatpak update --commit=` to go back to (default 3).
 #
@@ -40,7 +40,7 @@ build_repo=$2
 version=$3
 bundle_dir=$4
 : "${GPG_HOMEDIR:?the keyring holding the signing key}"
-BASE_URL=${BASE_URL:-https://tuna-os.github.io/hylki}
+BASE_URL=${BASE_URL:-https://tuna-os.github.io/lifafa}
 ARCHES=${ARCHES:-x86_64 aarch64}
 PRUNE_DEPTH=${PRUNE_DEPTH:-3}
 

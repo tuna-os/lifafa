@@ -5,7 +5,7 @@ Lifafa is the email client of the TunaOS office suite,
 alongside Letters, Tables and Decks. Its name is a word for envelope. It is
 [Hylki](https://github.com/hyprlab/hylki) by hyprlab with native
 [Tuta](https://tuta.com) and [Proton Mail](https://proton.me/mail) accounts,
-built from this soft fork, [tuna-os/hylki](https://github.com/tuna-os/hylki).
+built from this soft fork, [tuna-os/lifafa](https://github.com/tuna-os/lifafa).
 Upstream declined both providers, so the fork carries them and follows
 upstream for everything else. It belongs to the suite by name, icon and
 packaging; the code lives here. It ships as its own app, `org.tunaos.lifafa`,
@@ -14,7 +14,7 @@ which installs beside upstream Hylki and shares none of its state.
 Neither Tuta nor Proton endorses third-party clients built this way; use them
 knowing that. What belongs in the fork and what goes upstream, and how
 touchpoints are kept small, is in [MAINTAINING.md](MAINTAINING.md). Issues are
-off on tuna-os/hylki; report problems on the
+off on tuna-os/lifafa; report problems on the
 [suite's tracker](https://github.com/tuna-os/gtk-office-suite/issues).
 
 ## What is in this directory
@@ -126,7 +126,7 @@ sweep.
 4. If all of that passed, it pushes.
 
 If any step fails, nothing is pushed and the run fails; its summary names the
-step that failed and any conflicting files. Issues are off on tuna-os/hylki,
+step that failed and any conflicting files. Issues are off on tuna-os/lifafa,
 so the failed run is the alert. If issues are turned on, one issue labelled
 `upstream-sync` is also opened, or updated if one is already open, and the next
 clean run closes it.
@@ -216,18 +216,18 @@ for N of 256 and 512.
 ## Updates
 
 Lifafa is published as a signed Flatpak repository on this fork's GitHub
-Pages, `https://tuna-os.github.io/hylki/repo/`. Install it from there, and
+Pages, `https://tuna-os.github.io/lifafa/repo/`. Install it from there, and
 `flatpak update` follows every release:
 
 ```sh
-flatpak install --user https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakref
+flatpak install --user https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakref
 ```
 
 or add the repository as a remote first:
 
 ```sh
 flatpak remote-add --user --if-not-exists lifafa \
-    https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakrepo
+    https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakrepo
 flatpak install --user lifafa org.tunaos.lifafa
 ```
 
@@ -245,7 +245,7 @@ repository; it keeps its app ID, so your accounts and settings in
 
 ```sh
 flatpak remote-add --user --if-not-exists lifafa \
-    https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakrepo
+    https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakrepo
 flatpak install --user --reinstall lifafa org.tunaos.lifafa
 ```
 

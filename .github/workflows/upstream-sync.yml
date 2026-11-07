@@ -1,6 +1,6 @@
 name: Upstream sync
 
-# The fork (tuna-os/hylki) follows hyprlab/hylki: once a day, upstream's main
+# The fork (tuna-os/lifafa) follows hyprlab/hylki: once a day, upstream's main
 # is merged into ours with a merge commit, checked, and pushed. Never a rebase
 # or a force push, so the fork's history and every tag on it stay valid.
 #

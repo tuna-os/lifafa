@@ -1,6 +1,6 @@
 # Maintaining the Hylki soft fork
 
-This repository, tuna-os/hylki, is a soft fork of
+This repository, tuna-os/lifafa, is a soft fork of
 [hyprlab/hylki](https://github.com/hyprlab/hylki). It ships as **Lifafa**
 (`org.tunaos.lifafa`), the email client of the TunaOS office suite
 ([tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite)),
