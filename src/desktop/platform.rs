@@ -37,6 +37,21 @@ pub(crate) fn keyfile_value(data: &str, group: &str, key: &str) -> Option<String
     (!v.is_empty()).then(|| v.to_string())
 }
 
+/// Why a test that decodes an image cannot run here, or `None` when it can.
+/// GTK decodes images with glycin, whose loaders run in a sandbox of their
+/// own; inside Flatpak that sandbox comes from the portal, which only makes
+/// one for an application. A Flatpak runtime run directly, as running the
+/// tests inside the GNOME SDK does, has no application, so every decode
+/// fails there for a reason that is not the code under test.
+#[cfg(test)]
+pub(crate) fn image_loaders_unavailable() -> Option<&'static str> {
+    let info = fs::read_to_string("/.flatpak-info").ok()?;
+    let is_app = keyfile(&info).is_some_and(|kf| kf.has_group("Application"));
+    (!is_app).then_some(
+        "skipped: a Flatpak runtime with no application cannot start glycin's image loaders",
+    )
+}
+
 /// The AppImage this process was launched from (#235), if it was one. The
 /// runtime sets `APPIMAGE` to the bundle's own path, which is the only
 /// lasting one: the binary runs from a temporary mount that is gone the

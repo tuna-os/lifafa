@@ -688,8 +688,20 @@ mod tests {
         assert_eq!(argb_network_order(&[0, 0, 0, 0], 1, 1, 4), vec![0, 0, 0, 0]);
     }
 
+    /// Whether images decode here; a test that needs them says why not.
+    fn decodes() -> bool {
+        let why = crate::desktop::platform::image_loaders_unavailable();
+        if let Some(why) = why {
+            eprintln!("{why}");
+        }
+        why.is_none()
+    }
+
     #[test]
     fn every_icon_renders_at_every_size() {
+        if !decodes() {
+            return;
+        }
         for icon in [TrayIcon::Hylki, TrayIcon::Symbolic] {
             for dotted in [false, true] {
                 let set = render_set(
@@ -757,6 +769,9 @@ mod tests {
 
     #[test]
     fn the_dot_is_red_and_only_when_asked() {
+        if !decodes() {
+            return;
+        }
         let size = 32usize;
         let plain = render(
             TrayIcon::Symbolic,
@@ -795,6 +810,9 @@ mod tests {
 
     #[test]
     fn a_half_fill_leaves_a_clear_margin_and_moves_the_dot() {
+        if !decodes() {
+            return;
+        }
         let size = 32usize;
         let icon = render(
             TrayIcon::Hylki,
