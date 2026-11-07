@@ -384,21 +384,24 @@ jobs:
           export GPG_HOMEDIR="$RUNNER_TEMP/gnupg"
           install -d -m 700 "$GPG_HOMEDIR"
           printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --quiet --homedir "$GPG_HOMEDIR" --import
-          # The published site, or an empty one before the first release.
-          site="$RUNNER_TEMP/site"
+          # The published site, or an empty one before the first release, and
+          # the release's bundles, under publish/ in the workspace (container
+          # paths outside it do not reach upload-artifact as written).
+          site="$PWD/publish/site"
+          release="$PWD/publish/release"
           url="https://github.com/$GH_REPO.git"
           if git ls-remote --exit-code "$url" refs/heads/gh-pages >/dev/null; then
             git clone --quiet --depth 1 --branch gh-pages "$url" "$site"
-            git -C "$site" rev-parse HEAD > "$RUNNER_TEMP/pages-head"
+            git -C "$site" rev-parse HEAD > publish/pages-head
           else
             git init --quiet -b gh-pages "$site"
-            : > "$RUNNER_TEMP/pages-head"
+            : > publish/pages-head
           fi
           # The aarch64 build reaches this job as its bundle.
           flatpak build-import-bundle --no-update-summary "$RUNNER_TEMP/repo" "$APP_ID-$VERSION-aarch64.flatpak"
-          fork/flatpak-repo.sh "$site" "$RUNNER_TEMP/repo" "$VERSION" "$RUNNER_TEMP/release"
-          (cd "$RUNNER_TEMP/release" && sha256sum ./*.flatpak | tee SHA256SUMS)
-          test "$(wc -l < "$RUNNER_TEMP/release/SHA256SUMS")" -eq 2
+          fork/flatpak-repo.sh "$site" "$RUNNER_TEMP/repo" "$VERSION" "$release"
+          (cd "$release" && sha256sum ./*.flatpak | tee SHA256SUMS)
+          test "$(wc -l < "$release/SHA256SUMS")" -eq 2
           gpgconf --homedir "$GPG_HOMEDIR" --kill gpg-agent || true
           rm -rf "$GPG_HOMEDIR"
 
@@ -410,9 +413,9 @@ jobs:
         with:
           name: flatpak-repo
           path: |
-            ${{ runner.temp }}/site
-            ${{ runner.temp }}/release
-            !${{ runner.temp }}/site/.git
+            publish/site
+            publish/release
+            !publish/site/.git
           include-hidden-files: true
           retention-days: 7
           if-no-files-found: error
@@ -427,7 +430,7 @@ jobs:
           # One commit with no history: the branch holds the current
           # repository only, so objects pruned from it leave git as well.
           # The lease refuses to overwrite a publish that raced this one.
-          cd "$RUNNER_TEMP/site"
+          cd publish/site
           git checkout --quiet --orphan published
           git add -A
           git -c user.name='github-actions[bot]' \
@@ -435,7 +438,7 @@ jobs:
             commit --quiet -m "$APP_NAME $VERSION"
           auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
           git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push --quiet \
-            --force-with-lease=refs/heads/gh-pages:"$(cat "$RUNNER_TEMP/pages-head")" \
+            --force-with-lease=refs/heads/gh-pages:"$(cat ../pages-head)" \
             "https://github.com/$GH_REPO.git" published:refs/heads/gh-pages
 
       - name: Attach the bundles
@@ -446,7 +449,7 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cd "$RUNNER_TEMP/release"
+          cd publish/release
           pages="https://${GH_REPO%%/*}.github.io/${GH_REPO#*/}"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --verify-tag --title "$APP_NAME $VERSION" \
