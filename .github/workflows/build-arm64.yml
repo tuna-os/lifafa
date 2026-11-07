@@ -91,9 +91,10 @@ jobs:
           }
 
           install_ref org.gnome.Platform//50 org.gnome.Sdk//50
-          # The Proton helper (native/proton) is Go, built with the SDK's Go
-          # extension. An older tag has no helper and does not need it.
-          if [ -f native/proton/go.mod ]; then
+          # The Proton helper (native/proton-unofficial-sdk, native/proton in
+          # older tags) is Go, built with the SDK's Go extension. An older
+          # tag has no helper and does not need it.
+          if [ -f native/proton/go.mod ] || [ -f native/proton-unofficial-sdk/go.mod ]; then
             install_ref org.freedesktop.Sdk.Extension.golang//25.08
           fi
 
@@ -191,8 +192,8 @@ jobs:
           if [ -f native/tuta/Cargo.toml ] || [ -f native/tuta-unofficial-sdk/Cargo.toml ]; then
             file -L build-dir/files/bin/hylki-tuta | tee /dev/stderr | grep -q 'ARM aarch64'
           fi
-          if [ -f native/proton/go.mod ]; then
-            file build-dir/files/bin/hylki-proton | tee /dev/stderr | grep -q 'ARM aarch64'
+          if [ -f native/proton/go.mod ] || [ -f native/proton-unofficial-sdk/go.mod ]; then
+            file -L build-dir/files/bin/hylki-proton | tee /dev/stderr | grep -q 'ARM aarch64'
           fi
           # Guard against building the wrong revision: the app's version has to
           # match the checkout's Cargo.toml.

@@ -103,7 +103,8 @@ if [ ! -f /etc/arch-release ]; then
                         --exclude=./native/tuta-unofficial-sdk/target \
                         --exclude=./native/tuta-unofficial-sdk/upstream/target \
                         --exclude=./native/tuta-unofficial-sdk/upstream/tuta-repo \
-                        --exclude=./native/proton/hylki-proton -cf - . \
+                        --exclude=./native/proton/hylki-proton \
+                        --exclude=./native/proton-unofficial-sdk/hylki-proton -cf - . \
                 | tar -C /build -xf -
             HYLKI_APPIMAGE_SRC=/build exec /here/tools/build-appimage.sh
         '
@@ -178,10 +179,20 @@ if [ -n "$TUTA_DIR" ]; then
 fi
 
 # The Proton helper, in every tree from the one that added it: Go, from the
-# modules committed in native/proton/vendor.
-if [ -f native/proton/go.mod ]; then
+# modules committed in vendor/. It is proton-helper from the
+# native/proton-unofficial-sdk submodule, or in older trees native/proton;
+# either is installed as hylki-proton, the name the app looks for.
+PROTON_DIR=""
+if [ -f native/proton-unofficial-sdk/go.mod ]; then
+    PROTON_DIR=native/proton-unofficial-sdk
+    PROTON_PKG=./cmd/proton-helper
+elif [ -f native/proton/go.mod ]; then
+    PROTON_DIR=native/proton
+    PROTON_PKG=.
+fi
+if [ -n "$PROTON_DIR" ]; then
     echo "==> Building the Proton helper"
-    ( cd native/proton && GOFLAGS=-mod=vendor go build -trimpath -buildvcs=false -o hylki-proton . )
+    ( cd "$PROTON_DIR" && GOFLAGS=-mod=vendor go build -trimpath -buildvcs=false -o hylki-proton "$PROTON_PKG" )
     HELPERS+=(/usr/bin/hylki-proton)
 fi
 
@@ -194,8 +205,8 @@ install -Dm755 target/release/hylki /usr/bin/hylki
 if [ -n "$TUTA_DIR" ]; then
     install -Dm755 "$TUTA_DIR/target/release/$TUTA_BIN" /usr/bin/hylki-tuta
 fi
-if [ -f native/proton/go.mod ]; then
-    install -Dm755 native/proton/hylki-proton /usr/bin/hylki-proton
+if [ -n "$PROTON_DIR" ]; then
+    install -Dm755 "$PROTON_DIR/hylki-proton" /usr/bin/hylki-proton
 fi
 install -d /usr/share/applications /usr/share/metainfo
 msgfmt --desktop --template="data/$APP_ID.desktop" -d po -o "/usr/share/applications/$APP_ID.desktop"

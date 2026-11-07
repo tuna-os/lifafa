@@ -321,11 +321,6 @@ impl AppModel {
             AppMsg::EditQueuedOutbox { account_id, id } => {
                 self.compose_from_outbox(account_id, id, &sender)
             }
-            // Let go unanswered when the account has no worker, which the
-            // composer reads as "could not say".
-            AppMsg::TutaRecipients { account_id, ask } => {
-                self.send_to(account_id, MailRequest::TutaRecipients(ask))
-            }
             _ => unreachable!("not routed to on_outbox"),
         }
     }

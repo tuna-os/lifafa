@@ -56,7 +56,7 @@ pub(crate) use api::{
     begin_text_search, text_search_is_current, CalendarPart, KeyringRead, MailRequest,
     OutgoingMessage, WorkerEvent, TEXT_SEARCH_LIMIT,
 };
-pub(crate) use api::{ServerFound, ServerSearch, TutaRecipientsAsk};
+pub(crate) use api::{ServerFound, ServerSearch};
 pub(crate) use auth::{forget_access_token, oauth_token_blocking};
 pub(crate) use compose::build::sent_body_preview;
 pub(crate) use compose::editable::editable_from_raw;
@@ -86,6 +86,7 @@ pub(crate) use render::body::wrap_plain;
 pub(crate) use render::render_raw;
 pub(crate) use summary::summary_from_raw;
 pub(crate) use tls::is_hostname_mismatch;
+pub(crate) use tuta::{ask_recipients, TutaRecipientsAsk};
 
 /// What a connection that was never tried, because the network is down,
 /// reports (#442).

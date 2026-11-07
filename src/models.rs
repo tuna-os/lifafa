@@ -8,7 +8,6 @@ mod hierarchy;
 mod message;
 mod outbox;
 mod receipt_marks;
-mod tuta_delivery;
 mod verdicts;
 
 pub(crate) use attachments::*;
@@ -17,7 +16,6 @@ pub(crate) use hierarchy::*;
 pub(crate) use message::*;
 pub(crate) use outbox::*;
 pub(crate) use receipt_marks::*;
-pub(crate) use tuta_delivery::*;
 pub(crate) use verdicts::*;
 
 #[cfg(test)]

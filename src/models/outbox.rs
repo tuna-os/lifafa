@@ -156,3 +156,10 @@ impl OutboxItem {
 /// Folder id for the Outbox's synthetic rows. Real folders are numbered from 1
 /// by the worker, so this can't collide.
 pub(super) const OUTBOX_FOLDER_ID: u32 = u32::MAX;
+
+// Fork-only modules, declared here so that models.rs and message.rs stay
+// upstream's (fork/MAINTAINING.md): this file is a touchpoint already.
+mod tuta_delivery;
+mod tuta_key;
+pub(crate) use tuta_delivery::*;
+pub(crate) use tuta_key::*;

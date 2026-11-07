@@ -51,6 +51,7 @@ mod mime;
 mod offline;
 mod ops;
 mod push;
+mod recipients;
 mod send;
 mod wire;
 
@@ -60,6 +61,7 @@ use index::{tuta_backfill_step, tuta_load_folder, TutaState};
 use offline::tuta_offline_step;
 use ops::{emit_folder, tuta_poll};
 use push::{spawn_tuta_push, PushSignal};
+pub(crate) use recipients::{ask_recipients, TutaRecipientsAsk};
 use send::tuta_flush_outbox;
 
 /// While push is live, the poll still runs this often, as the safety net
@@ -88,6 +90,8 @@ struct TutaWorker<E> {
     /// The folder the user last opened, refreshed along with the Inbox
     /// when a change was pushed without saying where.
     open: Option<String>,
+    /// The composers' questions about their recipients (see `recipients`).
+    asks: recipients::Asks,
 }
 
 /// Run a Tuta account until the UI drops its sender.
@@ -184,6 +188,7 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
             push_live: false,
             polled: Instant::now(),
             open: None,
+            asks: recipients::register(account_id),
         };
         worker.sync_folders().await;
         worker.start_push();
@@ -262,6 +267,10 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
                 },
                 Some(signal) = self.push_rx.recv() => {
                     self.on_pushed(signal).await;
+                    continue;
+                }
+                Some(ask) = self.asks.rx.recv() => {
+                    self.on_tuta_recipients(ask);
                     continue;
                 }
                 _ = poll.tick() => {
@@ -394,7 +403,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
                 account_id,
                 i18n("Tuta's servers cannot search encrypted mail: search finds what is on this computer"),
             ),
-            MailRequest::TutaRecipients(ask) => self.on_tuta_recipients(ask),
             MailRequest::FindText { gen, .. } => (self.emit)(WorkerEvent::TextFound {
                 gen,
                 hits: Vec::new(),

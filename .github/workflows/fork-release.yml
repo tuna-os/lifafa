@@ -201,7 +201,7 @@ jobs:
             return 1
           }
           install_ref "$RUST_EXTENSION"
-          # The Proton helper (native/proton) is Go.
+          # The Proton helper (native/proton-unofficial-sdk) is Go.
           install_ref "$GO_EXTENSION"
 
       - name: Cache the SDK extensions

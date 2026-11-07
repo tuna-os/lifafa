@@ -61,8 +61,7 @@ impl AppModel {
             | AppMsg::SendCurrentOutbox
             | AppMsg::SendDueScheduled
             | AppMsg::RetryAllOutbox
-            | AppMsg::EditQueuedOutbox { .. }
-            | AppMsg::TutaRecipients { .. }) => self.on_outbox(msg, sender),
+            | AppMsg::EditQueuedOutbox { .. }) => self.on_outbox(msg, sender),
             msg @ (AppMsg::Notice(..)
             | AppMsg::OpenMessageFromNotification { .. }
             | AppMsg::NotificationMarkRead { .. }

@@ -276,10 +276,6 @@ pub(crate) enum MailRequest {
     /// not have yet, says when a server could not answer, and runs beside
     /// the user's own search without taking its place.
     AskServer(ServerSearch),
-    /// The composer asks a Tuta account which recipients are outside Tuta,
-    /// and the passwords its contacts keep for them. Every other kind of
-    /// account refuses it.
-    TutaRecipients(TutaRecipientsAsk),
 }
 
 /// What an assistant asks a server, and where the answer goes. It answers
@@ -317,28 +313,6 @@ impl ServerSearch {
             done: true,
             ..Default::default()
         });
-    }
-}
-
-/// What [`MailRequest::TutaRecipients`] asks, and where the answer goes:
-/// each address described, in the order asked, or why the account could
-/// not say. The answer is let go unsent when the account has no worker.
-#[derive(Debug)]
-pub(crate) struct TutaRecipientsAsk {
-    pub(crate) addresses: Vec<String>,
-    pub(crate) answer:
-        tokio::sync::oneshot::Sender<Result<Vec<crate::models::TutaRecipient>, String>>,
-}
-
-impl TutaRecipientsAsk {
-    /// Say that this account cannot answer, and why.
-    pub(crate) fn refuse(self, why: impl Into<String>) {
-        let _ = self.answer.send(Err(why.into()));
-    }
-
-    /// The answer of every account that is not a Tuta account.
-    pub(crate) fn not_tuta(self) {
-        self.refuse(crate::i18n::i18n("This is not a Tuta account."));
     }
 }
 

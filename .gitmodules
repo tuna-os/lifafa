@@ -1,3 +1,6 @@
 [submodule "native/tuta-unofficial-sdk"]
 	path = native/tuta-unofficial-sdk
 	url = https://github.com/tuna-os/tuta-unofficial-sdk.git
+[submodule "native/proton-unofficial-sdk"]
+	path = native/proton-unofficial-sdk
+	url = https://github.com/tuna-os/proton-unofficial-sdk.git

@@ -326,7 +326,11 @@ mod tests {
         let first = bind(&path).expect("binds where nothing is");
         let mode = |p: &std::path::Path| std::fs::metadata(p).unwrap().permissions().mode() & 0o777;
         assert_eq!(mode(&path), 0o600);
-        assert_eq!(mode(path.parent().unwrap()), 0o700);
+        // `bind` leaves the directory's mode to Flatpak inside a sandbox,
+        // where these tests also run (in the GNOME SDK).
+        if std::env::var_os("FLATPAK_ID").is_none() {
+            assert_eq!(mode(path.parent().unwrap()), 0o700);
+        }
         // Something answers there: it is left alone.
         let e = bind(&path).unwrap_err();
         assert!(e.contains("already listening"), "{e}");
