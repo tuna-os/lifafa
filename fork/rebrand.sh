@@ -6,6 +6,7 @@
 #
 #   cp -a . /tmp/lifafa && fork/rebrand.sh /tmp/lifafa
 #   fork/rebrand.sh --identity      # print the identity below as KEY=value
+#   HYLKI_REBRAND_FAST_PROFILE=1 fork/rebrand.sh <tree>   # see the manifest section
 #
 # The fork's source keeps upstream's co.hyprlab.Hylki strings so that merging
 # hyprlab/hylki stays cheap; the rebrand is applied to a copy of the tree just
@@ -546,9 +547,20 @@ for binary in ("tuta-helper", "hylki"):
 sub(MANIFEST, r"^        CARGO_NET_OFFLINE: 'true'\n",
     literal("        CARGO_NET_OFFLINE: 'true'\n"
             "        CARGO_TARGET_DIR: /run/ccache/cargo-target/hylki-tuta\n"), count=1)
+# HYLKI_REBRAND_FAST_PROFILE=1 builds the app without LTO and with 16 codegen
+# units: a change to the app crate then recompiles in a fraction of the time
+# upstream's release profile (thin LTO, one codegen unit) takes, for a binary
+# that is somewhat larger and slower. fork-release.yml asks for it on manual
+# runs that publish nothing; tags and the daily build of main keep upstream's
+# profile. It gets a target directory of its own, since every crate built
+# under one profile is stale under the other.
+app_env = "        CARGO_TARGET_DIR: /run/ccache/cargo-target/hylki\n"
+if os.environ.get("HYLKI_REBRAND_FAST_PROFILE"):
+    app_env = ("        CARGO_TARGET_DIR: /run/ccache/cargo-target/hylki-fast\n"
+               "        CARGO_PROFILE_RELEASE_LTO: 'off'\n"
+               "        CARGO_PROFILE_RELEASE_CODEGEN_UNITS: '16'\n")
 sub(MANIFEST, r"^  - name: hylki\n    buildsystem: simple\n",
-    literal("  - name: hylki\n    buildsystem: simple\n    build-options:\n      env:\n"
-            "        CARGO_TARGET_DIR: /run/ccache/cargo-target/hylki\n"), count=1)
+    literal("  - name: hylki\n    buildsystem: simple\n    build-options:\n      env:\n" + app_env), count=1)
 APPLY_MTIMES = ('      - python3 "$FLATPAK_BUILDER_BUILDDIR"/fork/ci-mtimes.py apply'
                 ' "$FLATPAK_BUILDER_BUILDDIR" "$CARGO_HOME"/vendor\n')
 for first in ("cargo --offline build --locked --release --verbose -p tuta-helper",

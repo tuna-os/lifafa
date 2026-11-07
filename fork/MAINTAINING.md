@@ -143,9 +143,16 @@ no Tuta or Proton account configured. If it would, it goes upstream.
 - **Tags** are `v<upstream-version>-tuna<N>`, for example `v1.47.1-tuna3`, so
   the upstream base is always visible.
 - **Building:** `.github/workflows/fork-release.yml` builds the rebranded
-  Flatpak (both helpers included) for x86_64 and aarch64 and attaches it to
-  the GitHub release. It reuses the caches a daily build of `main` keeps
-  warm (fork/README.md, "Building"); run it by hand with `clean` ticked if a
-  cache goes bad.
+  Flatpak (both helpers included) for x86_64 and aarch64, commits it signed
+  into the Flatpak repository on GitHub Pages, and attaches bundles of the
+  same commits to the GitHub release (fork/README.md, "Building" and
+  "Updates"). It reuses the caches a daily build of `main` keeps warm; run it
+  by hand with `clean` ticked if a cache goes bad. Before tagging, a manual
+  run on the branch builds, signs and assembles the repository without
+  publishing it.
+- **Keys:** the repository's signing key is the `LIFAFA_GPG_PRIVATE_KEY`
+  Actions secret, with an offline copy kept by the maintainers; only its
+  public half, `fork/flatpak-repo.asc`, is in the tree, and the workflow
+  refuses a secret that does not match it.
 - **Release notes** list the upstream version merged, plus the fork-only
   changes since the last tag.

@@ -26,6 +26,7 @@ off on tuna-os/hylki; report problems on the
 | `import-from-hylki.sh` | Copies upstream Hylki's accounts, settings and passwords into Lifafa |
 | `MAINTAINING.md` | The fork's boundary and upstreaming policy |
 | `touchpoints.txt`, `check-touchpoints.sh` | The upstream files the fork modifies, and the check that keeps that list honest |
+| `flatpak-repo.sh`, `flatpak-repo.asc` | Adds a release to the signed Flatpak repository, and the key it is signed with |
 
 The workflows are `.github/workflows/upstream-sync.yml` and
 `.github/workflows/fork-release.yml`.
@@ -132,12 +133,19 @@ the `workflow` scope; the job pushes with it when it is set.
 
 Releases are tagged `v<upstream-version>-tuna<N>`, for example `v1.47.1-tuna3`.
 A tag, or a manual run of `.github/workflows/fork-release.yml` given such a
-tag, builds `org.tunaos.lifafa-<version>.flatpak` (x86_64) and
-`org.tunaos.lifafa-<version>-aarch64.flatpak` and attaches both, with their
-`SHA256SUMS`, to a GitHub release titled "Lifafa <version>". A manual run on a
-branch builds the same bundles as workflow artifacts only. Upstream's
-`build-arm64.yml` also runs for these tags, because it matches every `v*` tag;
-its upstream-branded artifact can be ignored.
+tag, builds Lifafa for x86_64 and aarch64 and publishes it twice over:
+
+- into the signed Flatpak repository on GitHub Pages, which `flatpak update`
+  follows (see [Updates](#updates)), pushed to the `gh-pages` branch;
+- as `org.tunaos.lifafa-<version>.flatpak` (x86_64) and
+  `org.tunaos.lifafa-<version>-aarch64.flatpak`, with their `SHA256SUMS`, on a
+  GitHub release titled "Lifafa <version>". The bundles are made from the
+  signed commits and name the repository, so they update from it as well.
+
+A manual run on a branch builds the same bundles as workflow artifacts, and
+assembles and signs the repository as a `flatpak-repo` artifact without
+pushing it. Upstream's `build-arm64.yml` also runs for these tags, because it
+matches every `v*` tag; its upstream-branded artifact can be ignored.
 
 The workflow keeps its builds fast with caches:
 
@@ -164,6 +172,12 @@ The workflow keeps its builds fast with caches:
   other runs.
 - A manual run with `clean` ticked builds from scratch, for a cache that has
   gone bad.
+- A manual run that is not a release builds the app with LTO off and 16
+  codegen units (`HYLKI_REBRAND_FAST_PROFILE=1` to `rebrand.sh`), in a
+  target directory of its own, unless `upstream_profile` is ticked. Tags and
+  the daily build of `main`, which keeps the tags' cache warm, use upstream's
+  release profile (thin LTO, one codegen unit). When the target directories
+  pass the cap, the fast profile's is dropped first.
 
 A local build follows the same steps as `fork-release.yml`. It needs
 `flatpak-builder`, the GNOME 50 SDK, and the `rust-stable` and `golang`
@@ -192,8 +206,59 @@ The icon's PNGs are rendered from the SVG; after changing it, run
 `rsvg-convert -w N -h N fork/icons/org.tunaos.lifafa.svg -o fork/icons/org.tunaos.lifafa-N.png`
 for N of 256 and 512.
 
-The bundles are unsigned single files. Publishing a signed OSTree repository
-on GitHub Pages, so that `flatpak update` follows releases, is still to do.
+## Updates
+
+Lifafa is published as a signed Flatpak repository on this fork's GitHub
+Pages, `https://tuna-os.github.io/hylki/repo/`. Install it from there, and
+`flatpak update` follows every release:
+
+```sh
+flatpak install --user https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakref
+```
+
+or add the repository as a remote first:
+
+```sh
+flatpak remote-add --user --if-not-exists lifafa \
+    https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakrepo
+flatpak install --user lifafa org.tunaos.lifafa
+```
+
+The runtime comes from Flathub. Commits and the summary are signed with
+`Lifafa (TunaOS) <noreply@tunaos.org>`, fingerprint
+`F9D8 8C33 D6A7 AC85 29FE  1FD3 61BC 0585 35DF E2CF`, whose public key is
+`fork/flatpak-repo.asc` and is embedded in the `.flatpakrepo` and
+`.flatpakref`. The bundles on the releases from v1.47.1-tuna6 on install the
+same signed commits and update from the same repository.
+
+**Installed from a bundle of v1.47.1-tuna5 or earlier?** Those bundles name
+no repository, so they never update. Switch the installed app over to the
+repository; it keeps its app ID, so your accounts and settings in
+`~/.var/app/org.tunaos.lifafa` stay as they are:
+
+```sh
+flatpak remote-add --user --if-not-exists lifafa \
+    https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakrepo
+flatpak install --user --reinstall lifafa org.tunaos.lifafa
+```
+
+The old bundle's `lifafa-origin` remote goes away by itself once nothing is
+installed from it. Use `--system` instead of `--user` for a system-wide
+install. Two shortcuts do not work: `flatpak install --reinstall` of the
+`.flatpakref` is refused while the app is installed, and reinstalling from a
+newer bundle keeps the old bundle's remote, which does not check signatures.
+
+How the repository is kept, in `fork/flatpak-repo.sh`: each release is
+committed on top of the previous one per arch, signed with the key in the
+`LIFAFA_GPG_PRIVATE_KEY` Actions secret, with static deltas from the previous
+release. The newest commit and the three before it are kept, for
+`flatpak update --commit=` to roll back to; an install on an older commit
+still updates, without a delta. The `gh-pages` branch holds one commit, the
+current site, replaced on every release, and GitHub Pages serves it as is
+(`.nojekyll`). The private key's offline copy is with the maintainers. A new
+key means a new `fork/flatpak-repo.asc` and secret, and every installed
+remote needs `flatpak remote-modify --gpg-import=<key> lifafa` (or to be
+added again from the new `.flatpakrepo`) before it accepts the next release.
 
 ## Moving over from upstream Hylki
 

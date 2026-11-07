@@ -9,8 +9,21 @@ run-name: Fork release ${{ inputs.ref || github.ref_name }}
 # same recipe as upstream's manifest, the runtime, poppler, the dictionaries,
 # and the Tuta (Rust) and Proton (Go) helpers. See fork/README.md.
 #
-# The bundles are unsigned single files. A signed OSTree repository on Pages,
-# which `flatpak update` could follow, is not published yet.
+# A release also goes into the app's signed OSTree repository, which `flatpak
+# update` follows: the x86_64 job commits both arches' builds on top of the
+# published ones with the key in the LIFAFA_GPG_PRIVATE_KEY secret, and pushes
+# the repository, its .flatpakrepo and .flatpakref to the gh-pages branch,
+# served by GitHub Pages (fork/flatpak-repo.sh). The bundles attached to the
+# release are made from those signed commits and update from the repository.
+# A manual run that is not a release assembles and signs the same repository
+# as an artifact, without pushing it, so the publishing path is tested before
+# a tag needs it.
+#
+# Manual runs that publish nothing build the app with LTO off and 16 codegen
+# units (HYLKI_REBRAND_FAST_PROFILE in fork/rebrand.sh), unless asked for
+# upstream's profile: a change to the app crate then recompiles in a fraction
+# of the time. Tags, and the daily build that keeps their cache warm, use
+# upstream's thin LTO with one codegen unit.
 #
 # What makes a run fast (fork/README.md, "Building"):
 #   - Flathub's builder image already holds the GNOME runtime and SDK; the
@@ -47,6 +60,11 @@ on:
         type: boolean
         required: false
         default: false
+      upstream_profile:
+        description: "Build with upstream's release profile, as tags do, instead of the fast one"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -72,7 +90,8 @@ jobs:
         shell: bash
     permissions:
       # The x86_64 job publishes the release: it reads the run's artifacts
-      # and jobs to wait for the aarch64 bundle, then writes the release.
+      # and jobs to wait for the aarch64 bundle, then pushes gh-pages and
+      # writes the release.
       actions: read
       contents: write
     strategy:
@@ -120,12 +139,27 @@ jobs:
             x86_64) bundle="$APP_ID-$version.flatpak" ;;
             *) bundle="$APP_ID-$version-${{ matrix.arch }}.flatpak" ;;
           esac
+          # Manual runs that publish nothing get the fast profile, and the
+          # x86_64 job of every manual run or release assembles the signed
+          # repository; the daily build does neither.
+          fast=false
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ -z "$tag" ] \
+              && [ "${{ inputs.upstream_profile }}" != true ]; then
+            fast=true
+          fi
+          repo=false
+          if [ "${{ matrix.arch }}" = x86_64 ] \
+              && { [ -n "$tag" ] || [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; }; then
+            repo=true
+          fi
           {
             echo "tag=$tag"
             echo "version=$version"
             echo "bundle=$bundle"
+            echo "fast=$fast"
+            echo "repo=$repo"
           } >> "$GITHUB_OUTPUT"
-          echo "building $APP_NAME $version for ${{ matrix.arch }}${tag:+, release $tag}"
+          echo "building $APP_NAME $version for ${{ matrix.arch }}${tag:+, release $tag}$([ "$fast" = true ] && echo ', fast profile')"
 
       - name: Look up the SDK and extension commits
         id: refs
@@ -213,6 +247,8 @@ jobs:
 
       - name: Rebrand
         # This checkout is thrown away after the job, so it is rebranded in place.
+        env:
+          HYLKI_REBRAND_FAST_PROFILE: ${{ steps.version.outputs.fast == 'true' && '1' || '' }}
         run: HYLKI_REBRAND_IN_PLACE=1 fork/rebrand.sh "$PWD"
 
       - name: Restore the build cache
@@ -262,6 +298,7 @@ jobs:
             || { echo "built app is not $want" >&2; exit 1; }
           grep -qx "Name=$APP_NAME" "$files/share/applications/$APP_ID.desktop"
           test -s "$files/share/icons/hicolor/scalable/apps/$APP_ID.svg"
+          echo "hylki is $(stat -c %s "$files/bin/hylki") bytes ($([ "${{ steps.version.outputs.fast }}" = true ] && echo 'fast profile' || echo "upstream's profile"))"
 
       - name: Bundle
         run: |
@@ -285,6 +322,12 @@ jobs:
           rm -rf .flatpak-builder/build .flatpak-builder/rofiles
           targets=.flatpak-builder/ccache/cargo-target
           size=$(du -sm "$targets" 2>/dev/null | cut -f1)
+          # The fast profile's target directory goes first: tags never use it.
+          if [ "${size:-0}" -gt "$CARGO_TARGET_CAP_MB" ] && [ -d "$targets/hylki-fast" ]; then
+            echo "cargo targets are ${size} MB, over ${CARGO_TARGET_CAP_MB} MB; not keeping the fast profile's"
+            rm -rf "$targets/hylki-fast"
+            size=$(du -sm "$targets" | cut -f1)
+          fi
           if [ "${size:-0}" -gt "$CARGO_TARGET_CAP_MB" ]; then
             echo "cargo targets are ${size} MB, over ${CARGO_TARGET_CAP_MB} MB; not keeping them"
             rm -rf "$targets"
@@ -299,7 +342,7 @@ jobs:
           key: ${{ steps.refs.outputs.state }}
 
       - name: Wait for the aarch64 bundle
-        if: matrix.arch == 'x86_64' && steps.version.outputs.tag != ''
+        if: steps.version.outputs.repo == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -324,22 +367,89 @@ jobs:
           done
 
       - uses: actions/download-artifact@v4
-        if: matrix.arch == 'x86_64' && steps.version.outputs.tag != ''
+        if: steps.version.outputs.repo == 'true'
         with:
           name: fork-release-aarch64
 
+      - name: Sign into the Flatpak repository
+        if: steps.version.outputs.repo == 'true'
+        env:
+          GH_REPO: ${{ github.repository }}
+          GPG_PRIVATE_KEY: ${{ secrets.LIFAFA_GPG_PRIVATE_KEY }}
+          VERSION: ${{ steps.version.outputs.version }}
+          # Where gh-pages is served, which the .flatpakrepo, .flatpakref and
+          # bundles name.
+          BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          export GPG_HOMEDIR="$RUNNER_TEMP/gnupg"
+          install -d -m 700 "$GPG_HOMEDIR"
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --quiet --homedir "$GPG_HOMEDIR" --import
+          # The published site, or an empty one before the first release.
+          site="$RUNNER_TEMP/site"
+          url="https://github.com/$GH_REPO.git"
+          if git ls-remote --exit-code "$url" refs/heads/gh-pages >/dev/null; then
+            git clone --quiet --depth 1 --branch gh-pages "$url" "$site"
+            git -C "$site" rev-parse HEAD > "$RUNNER_TEMP/pages-head"
+          else
+            git init --quiet -b gh-pages "$site"
+            : > "$RUNNER_TEMP/pages-head"
+          fi
+          # The aarch64 build reaches this job as its bundle.
+          flatpak build-import-bundle --no-update-summary "$RUNNER_TEMP/repo" "$APP_ID-$VERSION-aarch64.flatpak"
+          fork/flatpak-repo.sh "$site" "$RUNNER_TEMP/repo" "$VERSION" "$RUNNER_TEMP/release"
+          (cd "$RUNNER_TEMP/release" && sha256sum ./*.flatpak | tee SHA256SUMS)
+          test "$(wc -l < "$RUNNER_TEMP/release/SHA256SUMS")" -eq 2
+          gpgconf --homedir "$GPG_HOMEDIR" --kill gpg-agent || true
+          rm -rf "$GPG_HOMEDIR"
+
+      - name: Keep the unpublished repository
+        # A manual run that is not a release stops here: the signed
+        # repository and bundles are kept for inspection, and nothing is pushed.
+        if: steps.version.outputs.repo == 'true' && steps.version.outputs.tag == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-repo
+          path: |
+            ${{ runner.temp }}/site
+            ${{ runner.temp }}/release
+            !${{ runner.temp }}/site/.git
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Publish the Flatpak repository
+        if: steps.version.outputs.repo == 'true' && steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # One commit with no history: the branch holds the current
+          # repository only, so objects pruned from it leave git as well.
+          # The lease refuses to overwrite a publish that raced this one.
+          cd "$RUNNER_TEMP/site"
+          git checkout --quiet --orphan published
+          git add -A
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit --quiet -m "$APP_NAME $VERSION"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push --quiet \
+            --force-with-lease=refs/heads/gh-pages:"$(cat "$RUNNER_TEMP/pages-head")" \
+            "https://github.com/$GH_REPO.git" published:refs/heads/gh-pages
+
       - name: Attach the bundles
-        if: matrix.arch == 'x86_64' && steps.version.outputs.tag != ''
+        if: steps.version.outputs.repo == 'true' && steps.version.outputs.tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          sha256sum ./*.flatpak > SHA256SUMS
-          test "$(wc -l < SHA256SUMS)" -eq 2
+          cd "$RUNNER_TEMP/release"
+          pages="https://${GH_REPO%%/*}.github.io/${GH_REPO#*/}"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --verify-tag --title "$APP_NAME $VERSION" \
-              --notes "$APP_NAME $VERSION, the TunaOS office suite's email client: Hylki by hyprlab (https://github.com/hyprlab/hylki) with native Tuta and Proton Mail accounts, as a Flatpak bundle for x86_64 and aarch64. Install with \`flatpak install --user $APP_ID-$VERSION.flatpak\`; it sits beside upstream Hylki and keeps its own data."
+              --notes "$APP_NAME $VERSION, the TunaOS office suite's email client: Hylki by hyprlab (https://github.com/hyprlab/hylki) with native Tuta and Proton Mail accounts, for x86_64 and aarch64. Install with \`flatpak install --user $pages/$APP_ID.flatpakref\` and \`flatpak update\` keeps it current; the bundles below install the same build and update from the same signed repository. It sits beside upstream Hylki and keeps its own data. Installed from a bundle of v1.47.1-tuna5 or earlier? See https://github.com/$GH_REPO/blob/main/fork/README.md#updates."
           fi
           gh release upload "$TAG" ./*.flatpak SHA256SUMS --clobber
