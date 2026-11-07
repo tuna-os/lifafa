@@ -397,8 +397,11 @@ jobs:
             git init --quiet -b gh-pages "$site"
             : > publish/pages-head
           fi
-          # The aarch64 build reaches this job as its bundle.
-          flatpak build-import-bundle --no-update-summary "$RUNNER_TEMP/repo" "$APP_ID-$VERSION-aarch64.flatpak"
+          # The aarch64 build reaches this job as its bundle. A manual run of
+          # a branch may have built a later commit there, under another name.
+          aarch64_bundles=("$APP_ID"-*-aarch64.flatpak)
+          test "${#aarch64_bundles[@]}" -eq 1 && test -s "${aarch64_bundles[0]}"
+          flatpak build-import-bundle --no-update-summary "$RUNNER_TEMP/repo" "${aarch64_bundles[0]}"
           fork/flatpak-repo.sh "$site" "$RUNNER_TEMP/repo" "$VERSION" "$release"
           (cd "$release" && sha256sum ./*.flatpak | tee SHA256SUMS)
           test "$(wc -l < "$release/SHA256SUMS")" -eq 2
