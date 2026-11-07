@@ -7,6 +7,12 @@ since the last tag ([MAINTAINING.md](MAINTAINING.md#releases)).
 
 ## Unreleased
 
+- **Added: updates through `flatpak update`.** Lifafa is published as a
+  signed Flatpak repository on GitHub Pages; install it with
+  `flatpak install --user https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakref`.
+  The release bundles now update from that repository too. An install made
+  from a v1.47.1-tuna5 or earlier bundle never updates: switch it over as
+  [Updates](README.md#updates) shows, keeping its accounts and settings.
 - **Added: confidential Tuta mail to anyone.** A Tuta account's composer
   has a **Confidential** toggle, on by default as in Tuta (Settings →
   Accounts → **Send confidential by default**). Confidential mail to an

@@ -8,6 +8,14 @@ those two kinds of account is upstream's app.
 GitHub shows this page in place of the repository's `README.md`, which stays
 upstream's own so the daily merge never conflicts on it.
 
+Install it from the fork's signed Flatpak repository, and `flatpak update`
+keeps it current ([Updates](../fork/README.md#updates), which also covers
+moving an install made from a v1.47.1-tuna5 or earlier bundle):
+
+```sh
+flatpak install --user https://tuna-os.github.io/hylki/org.tunaos.lifafa.flatpakref
+```
+
 - [Hylki's README](../README.md): the app, its features and documentation.
 - [Tuta and Proton Mail accounts](../fork/ACCOUNTS.md): what the fork adds,
   and how to use it.
