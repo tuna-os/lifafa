@@ -102,6 +102,14 @@ fn a_card_from_your_own_mailbox_wears_that_mailboxs_face() {
         "another sender keeps their own circle: {doc}"
     );
 
+    // The picture half writes and decodes an image, which needs the image
+    // loaders.
+    if let Some(why) = crate::desktop::platform::image_loaders_unavailable() {
+        eprintln!("{why}");
+        crate::services::avatar::set_own_faces(std::iter::empty());
+        return;
+    }
+
     // A picture wins over the emoji, and rides along embedded: the
     // document is handed the image, never a path it could go and read.
     let dir = std::env::temp_dir().join(format!("hylki-own-face-{}", std::process::id()));
