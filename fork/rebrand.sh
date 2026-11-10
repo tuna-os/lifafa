@@ -492,8 +492,8 @@ sub(privacy, r"^    /// Whether to load sender avatars from Gravatar \(off by de
             "    /// it sends a hash of each sender's email to a third party)."), count=1)
 for golden in ("privacy-default.toml", "privacy-empty-file.toml", "bundle.toml"):
     sub(f"src/config/testdata/{golden}",
-        r"^remote_ahead = false\ngravatar = false\navatars = true\nsender_logos = false$",
-        literal("remote_ahead = false\ngravatar = true\navatars = true\nsender_logos = true"),
+        r"^remote_ahead = false\nclean_links = true\ngravatar = false\navatars = true\nsender_logos = false$",
+        literal("remote_ahead = false\nclean_links = true\ngravatar = true\navatars = true\nsender_logos = true"),
         count=1)
 
 # --- The Flatpak manifest ---------------------------------------------------
