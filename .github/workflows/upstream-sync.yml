@@ -10,10 +10,11 @@ name: Upstream sync
 # on, it also opens one issue labelled upstream-sync (or updates the open one),
 # which the next clean run closes. See fork/README.md.
 #
-# GITHUB_TOKEN cannot push a commit that changes .github/workflows. When
-# upstream touches its workflows, the push fails and the issue says so: merge
-# that one by hand, or give the repository an UPSTREAM_SYNC_TOKEN secret (a
-# token with the workflow scope), which is used for the push when present.
+# GITHUB_TOKEN cannot push a commit that changes .github/workflows. Give the
+# repository an UPSTREAM_SYNC_SSH_KEY secret (the private half of a deploy key
+# with write access); checkout and the push then go over SSH with it. Without
+# it, a merge that touches upstream's workflows fails to push and the issue
+# says so: merge that one by hand.
 
 on:
   schedule:
@@ -54,7 +55,8 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+          ssh-key: ${{ secrets.UPSTREAM_SYNC_SSH_KEY }}
+          token: ${{ github.token }}
 
       - name: Merge
         id: merge
@@ -139,7 +141,7 @@ jobs:
           elif [ "$BUILD" = failure ]; then
             what="The merged tree does not rebrand (fork/rebrand.sh) or does not build (cargo check)."
           elif [ "$PUSH" = failure ]; then
-            what="The merge was clean but could not be pushed. If upstream changed .github/workflows, GITHUB_TOKEN may not push it: merge by hand, or set an UPSTREAM_SYNC_TOKEN secret with the workflow scope."
+            what="The merge was clean but could not be pushed. If upstream changed .github/workflows, GITHUB_TOKEN may not push it: merge by hand, or set an UPSTREAM_SYNC_SSH_KEY secret holding a deploy key with write access."
           else
             what="The sync job failed before it could merge."
           fi
