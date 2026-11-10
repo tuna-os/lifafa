@@ -8,6 +8,7 @@ use super::*;
 pub(crate) struct PrefInit {
     pub(crate) auto_remote_content: bool,
     pub(crate) remote_ahead: bool,
+    pub(crate) clean_links: bool,
     pub(crate) show_remote_banner: bool,
     pub(crate) show_spoof_banner: bool,
     /// Answering requests for read receipts, and asking for them (#520).
@@ -295,6 +296,10 @@ pub(crate) enum PrefInput {
     ToggleShowAccounts(bool),
     /// One of Focus Mode's switches.
     ToggleFocus(crate::config::FocusPart, bool),
+    /// Focus Mode's list layout, by its row in the combo.
+    SetFocusLayout(u32),
+    /// Focus Mode's preview lines: the row in the combo is the number of lines.
+    SetFocusPreviewLines(u32),
     /// The app's Focus Mode changed elsewhere (menu, shortcut): follow.
     SetFocusMode(crate::config::FocusMode),
     /// The main menu flipped "Show Accounts": the switch follows.
@@ -414,6 +419,7 @@ pub(crate) enum PrefOutput {
     PageShown(String),
     SetAutoRemoteContent(bool),
     SetRemoteAhead(bool),
+    SetCleanLinks(bool),
     SetShowRemoteBanner(bool),
     SetShowSpoofBanner(bool),
     SetReceipts(crate::config::ReceiptPolicy),
