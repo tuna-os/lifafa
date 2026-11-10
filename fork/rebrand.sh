@@ -150,8 +150,9 @@ def text_files(*roots):
 
 
 # "Hylki" as a word in text a person reads, not part of an identifier
-# ("HylkiTray", "X-Hylki-Icon-Launcher") or of the app ID.
-USER_HYLKI = re.compile(r"(?<![\w.\-])Hylki(?![\w\-])")
+# ("HylkiTray", "X-Hylki-Icon-Launcher"), of the app ID, or of a mail
+# domain ("TEST@Hylki.Invalid" in a test).
+USER_HYLKI = re.compile(r"(?<![\w.\-@])Hylki(?![\w\-])")
 # Strings that name Hylki on purpose: the credits this script writes into the
 # About window, which are matched as whole literals.
 CREDIT_FOOTER = "Built on Hylki by hyprlab. © 2026 Hyprlab"
