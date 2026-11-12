@@ -50,7 +50,7 @@ jobs:
           curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0 # zizmor: ignore[artipacked] a later step in this job runs git push
         with:
           ref: main
           fetch-depth: 0
@@ -84,7 +84,7 @@ jobs:
         if: steps.merge.outputs.changed == 'true'
         run: fork/check-touchpoints.sh
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v4.3.0
         if: steps.merge.outputs.changed == 'true'
         with:
           path: |
@@ -114,12 +114,14 @@ jobs:
 
       - name: Close the sync issue
         if: success()
+        env:
+          UPSTREAM_SHA: ${{ steps.merge.outputs.upstream }}
         run: |
           # Issues may be turned off on the fork; then there is nothing to close.
           [ "$(gh api "repos/$GITHUB_REPOSITORY" --jq .has_issues)" = true ] || exit 0
           number=$(gh issue list --label upstream-sync --state open --json number --jq '.[0].number // empty')
           if [ -n "$number" ]; then
-            gh issue close "$number" --comment "Resolved: main contains hyprlab/hylki ${{ steps.merge.outputs.upstream }} ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+            gh issue close "$number" --comment "Resolved: main contains hyprlab/hylki $UPSTREAM_SHA ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
           fi
 
       - name: Open or update the sync issue

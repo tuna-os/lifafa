@@ -30,9 +30,10 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: The submodule is on a release tag
         working-directory: native/tuta-unofficial-sdk

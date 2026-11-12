@@ -104,7 +104,7 @@ jobs:
             runner: ubuntu-24.04-arm
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           ref: ${{ inputs.ref || github.ref }}
           # The Tuta helper's SDK (native/tuta-unofficial-sdk) and the
@@ -121,6 +121,8 @@ jobs:
 
       - name: Pick the version
         id: version
+        env:
+          BUILD_REF: ${{ inputs.ref || github.ref_name }}
         run: |
           # The app's ID and name, for this step and the ones below.
           APP_ID=$(fork/rebrand.sh --identity | sed -n 's/^APP_ID=//p')
@@ -130,7 +132,7 @@ jobs:
             echo "APP_ID=$APP_ID"
             echo "APP_NAME=$APP_NAME"
           } >> "$GITHUB_ENV"
-          ref="${{ inputs.ref || github.ref_name }}"
+          ref="$BUILD_REF"
           case "$ref" in
             v*-tuna*) tag="$ref"; version="${ref#v}" ;;
             *) tag=""; version="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)-tuna.g$(git rev-parse --short HEAD)" ;;
@@ -180,7 +182,7 @@ jobs:
 
       - name: Restore the SDK extensions
         id: extensions
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v4.3.0
         with:
           path: ~/.local/share/flatpak
           key: ${{ steps.refs.outputs.extensions }}
@@ -206,7 +208,7 @@ jobs:
 
       - name: Cache the SDK extensions
         if: steps.extensions.outputs.cache-hit != 'true' && !startsWith(github.ref, 'refs/tags/')
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v4.3.0
         with:
           path: ~/.local/share/flatpak
           key: ${{ steps.refs.outputs.extensions }}
@@ -254,7 +256,7 @@ jobs:
       - name: Restore the build cache
         id: state
         if: ${{ !inputs.clean }}
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v4.3.0
         with:
           # flatpak-builder's default state directory, which the generated
           # manifest's directory sources skip.
@@ -284,6 +286,8 @@ jobs:
             "$RUNNER_TEMP/build-dir" "fork/$APP_ID.yml"
 
       - name: Check the result
+        env:
+          FAST: ${{ steps.version.outputs.fast }}
         run: |
           files="$RUNNER_TEMP/build-dir/files"
           case "${{ matrix.arch }}" in
@@ -298,16 +302,18 @@ jobs:
             || { echo "built app is not $want" >&2; exit 1; }
           grep -qx "Name=$APP_NAME" "$files/share/applications/$APP_ID.desktop"
           test -s "$files/share/icons/hicolor/scalable/apps/$APP_ID.svg"
-          echo "hylki is $(stat -c %s "$files/bin/hylki") bytes ($([ "${{ steps.version.outputs.fast }}" = true ] && echo 'fast profile' || echo "upstream's profile"))"
+          echo "hylki is $(stat -c %s "$files/bin/hylki") bytes ($([ "$FAST" = true ] && echo 'fast profile' || echo "upstream's profile"))"
 
       - name: Bundle
+        env:
+          BUNDLE: ${{ steps.version.outputs.bundle }}
         run: |
           flatpak build-bundle --arch=${{ matrix.arch }} \
             --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
-            "$RUNNER_TEMP/repo" "${{ steps.version.outputs.bundle }}" "$APP_ID" stable
-          sha256sum "${{ steps.version.outputs.bundle }}"
+            "$RUNNER_TEMP/repo" "$BUNDLE" "$APP_ID" stable
+          sha256sum "$BUNDLE"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: fork-release-${{ matrix.arch }}
           path: ${{ steps.version.outputs.bundle }}
@@ -336,7 +342,7 @@ jobs:
 
       - name: Save the build cache
         if: steps.state.outputs.cache-hit != 'true' && !startsWith(github.ref, 'refs/tags/')
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v4.3.0
         with:
           path: .flatpak-builder
           key: ${{ steps.refs.outputs.state }}
@@ -366,7 +372,7 @@ jobs:
             sleep 20
           done
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4.3.0
         if: steps.version.outputs.repo == 'true'
         with:
           name: fork-release-aarch64
@@ -412,7 +418,7 @@ jobs:
         # A manual run that is not a release stops here: the signed
         # repository and bundles are kept for inspection, and nothing is pushed.
         if: steps.version.outputs.repo == 'true' && steps.version.outputs.tag == ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: flatpak-repo
           path: |
