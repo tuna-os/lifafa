@@ -32,9 +32,10 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: The submodule is on a release tag
         working-directory: native/proton-unofficial-sdk
@@ -42,7 +43,7 @@ jobs:
           git fetch --tags --quiet origin
           git describe --exact-match --tags HEAD
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.6.0
         with:
           # The oldest Go the module builds with, as the packages do.
           go-version-file: native/proton-unofficial-sdk/go.mod

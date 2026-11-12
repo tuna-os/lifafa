@@ -40,7 +40,7 @@ jobs:
           - { arch: x86_64,  runs-on: ubuntu-latest }
           - { arch: aarch64, runs-on: ubuntu-24.04-arm }
 
-    container: ghcr.io/pkgforge-dev/archlinux:latest
+    container: ghcr.io/pkgforge-dev/archlinux:latest # zizmor: ignore[unpinned-images] the build tracks the current Arch image on purpose
 
     steps:
       # actions/checkout clones with git when it is installed, and only a
@@ -50,19 +50,21 @@ jobs:
       - name: Install git
         run: pacman -Sy --noconfirm --needed git
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           ref: ${{ github.event.inputs.ref || github.ref }}
           path: src
           submodules: recursive
+          persist-credentials: false
 
       # The build script as this workflow knows it. A run started by hand
       # builds an older tag, whose own copy may not make the beta app or
       # carry the fallback fonts yet.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           ref: ${{ github.workflow_sha }}
           path: ci
+          persist-credentials: false
 
       - name: Build
         # The script notices it is already inside Arch and builds in place.
@@ -97,7 +99,7 @@ jobs:
           echo "built $name $want for ${{ matrix.arch }}"
           echo "NAME=$name" >> "$GITHUB_ENV"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: hylki-appimage-${{ matrix.arch }}
           path: src/packaging/out/${{ env.NAME }}-${{ matrix.arch }}.AppImage
