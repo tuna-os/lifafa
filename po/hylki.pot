@@ -442,14 +442,29 @@ msgstr[1] ""
 msgid "Enable Console mode in Settings → System & Appearance"
 msgstr ""
 
+msgid ""
+"No templates yet. Save one from the composer's ⋯ menu with Save as Template."
+msgstr ""
+
 msgid "New Message from Template"
 msgstr ""
 
 msgid "The new message starts as a copy of the template you pick."
 msgstr ""
 
-msgid ""
-"No templates yet. Save one from the composer's ⋯ menu with Save as Template."
+msgid "Insert Template"
+msgstr ""
+
+msgid "The template goes in where the cursor is."
+msgstr ""
+
+msgid "Templates"
+msgstr ""
+
+msgid "Template saved to {folder} in {account}"
+msgstr ""
+
+msgid "Could not load the template."
 msgstr ""
 
 msgid "Continue a Draft"
@@ -1362,6 +1377,15 @@ msgstr ""
 msgid "Delete this conversation?"
 msgstr ""
 
+msgid ""
+"The message in this conversation will be deleted. You can turn this warning "
+"off in Settings."
+msgid_plural ""
+"All {n} messages in this conversation will be deleted. You can turn this "
+"warning off in Settings."
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Delete Conversation"
 msgstr ""
 
@@ -1753,6 +1777,11 @@ msgstr ""
 msgid "The file has no rows below its first."
 msgstr ""
 
+msgid ""
+"The signing key is not for {addr}, the address this message is from, so the "
+"signature does not show who sent it."
+msgstr ""
+
 msgid "GnuPG (gpg) is not installed, so this message cannot be read."
 msgstr ""
 
@@ -1988,6 +2017,11 @@ msgstr ""
 msgid "Encrypted with OpenPGP"
 msgstr ""
 
+msgid ""
+"Encrypted, and signed by {signer}, whose key is not for the sender's address "
+"{addr}"
+msgstr ""
+
 msgid "Encrypted, and signed by {signer}"
 msgstr ""
 
@@ -2008,6 +2042,9 @@ msgid "Encrypted, and signed by {signer}; the signature has expired"
 msgstr ""
 
 msgid "OpenPGP-signed; the signature could not be checked"
+msgstr ""
+
+msgid "Signed by {signer}, whose key is not for the sender's address {addr}"
 msgstr ""
 
 msgid "Signed by {signer}"
@@ -2035,6 +2072,9 @@ msgid "Encrypted"
 msgstr ""
 
 msgid "Signature not checked"
+msgstr ""
+
+msgid "Signed by another address"
 msgstr ""
 
 msgid "Encrypted and signed"
@@ -2273,6 +2313,11 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+msgid ""
+"Will appear in the composer's From menu. Replies to mail sent here will come "
+"from this address."
+msgstr ""
+
 msgid "Display name (optional)"
 msgstr ""
 
@@ -2283,6 +2328,10 @@ msgid "Sending"
 msgstr ""
 
 msgid "Own SMTP server"
+msgstr ""
+
+msgid ""
+"Needed when this account's provider, such as Gmail, rewrites the sender."
 msgstr ""
 
 msgid "SMTP server"
@@ -2298,6 +2347,9 @@ msgid "SMTP password"
 msgstr ""
 
 msgid "Test SMTP"
+msgstr ""
+
+msgid "Names that share an address send through this account's server."
 msgstr ""
 
 msgid "Testing…"
@@ -2905,7 +2957,28 @@ msgstr ""
 msgid "Save Attachment"
 msgstr ""
 
+msgid "Open “{name}”?"
+msgstr ""
+
+msgid ""
+"This attachment is a program or a script. Opening it can run it with your "
+"permissions. Open it only if you expected it and trust where it came from."
+msgstr ""
+
+msgid "Open Anyway"
+msgstr ""
+
 msgid "The file could not be opened"
+msgstr ""
+
+#. No Flatseal toggle can help here: portal access is not a
+#. permission, and the failure is inside the portal's own launcher.
+#. Offer the steps that actually work.
+msgid ""
+"The desktop portal reported: {error}\n"
+"\n"
+"• Download the file, then open it from Files\n"
+"• Updating “xdg-desktop-portal” and logging back in may fix direct opening"
 msgstr ""
 
 msgid "Go to Message"
@@ -3039,6 +3112,114 @@ msgid "Next"
 msgstr ""
 
 msgid "Open in the default app"
+msgstr ""
+
+msgid "Waiting for the Keyring"
+msgstr ""
+
+msgid ""
+"Mail stored on this computer is encrypted with a key stored in the keyring. "
+"Unlock the keyring if it asks."
+msgstr ""
+
+msgid ""
+"This happens once and can take a few minutes. If you quit, your mail is left "
+"as it was."
+msgstr ""
+
+msgid "Checking the copy"
+msgstr ""
+
+msgid "Encrypting Stored Mail"
+msgstr ""
+
+msgid "Decrypting Stored Mail"
+msgstr ""
+
+msgid "Store Unencrypted…"
+msgstr ""
+
+msgid "Reset Cache…"
+msgstr ""
+
+msgid "Try Again"
+msgstr ""
+
+msgid "Keyring Unavailable"
+msgstr ""
+
+msgid ""
+"Mail kept on this computer is encrypted with a key stored in the keyring, "
+"and the keyring is locked or did not answer. Unlock it, then try again."
+msgstr ""
+
+msgid "Mail Cache Key Missing"
+msgstr ""
+
+msgid ""
+"Mail kept on this computer is encrypted, and the keyring no longer holds its "
+"key. If the keyring was replaced, restore the old one and try again. "
+"Otherwise reset the cache to download your mail again."
+msgstr ""
+
+msgid "Mail Cache Cannot Be Unlocked"
+msgstr ""
+
+msgid ""
+"The key in the keyring does not open the mail kept on this computer. If the "
+"keyring was replaced, restore the old one and try again. Otherwise reset the "
+"cache to download your mail again."
+msgstr ""
+
+msgid "Mail Cache Not Converted"
+msgstr ""
+
+msgid ""
+"The mail kept on this computer could not be converted, and was left as it "
+"was. Check that the disk has free space, then try again."
+msgstr ""
+
+msgid "Mail Cache Unreadable"
+msgstr ""
+
+msgid ""
+"The mail kept on this computer could not be read. Try again, or reset the "
+"cache to download your mail again."
+msgstr ""
+
+msgid ""
+"Mail that exists only on this computer is lost: a POP3 account's mail, and "
+"unsent mail in the Outbox."
+msgstr ""
+
+msgid ""
+"Mail kept on this computer is deleted and downloaded again from the server."
+msgstr ""
+
+msgid "Reset the Mail Cache?"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid ""
+"Anyone who can read your files, or a backup of them, can then read the mail "
+"kept on this computer, including mail that is end-to-end encrypted on the "
+"server."
+msgstr ""
+
+msgid "Encryption can be turned back on in Settings → Privacy."
+msgstr ""
+
+msgid ""
+"The encrypted cache cannot be opened without the keyring, so it is deleted "
+"and your mail is downloaded again."
+msgstr ""
+
+msgid "Store Mail Unencrypted?"
+msgstr ""
+
+msgid "Store Unencrypted"
 msgstr ""
 
 msgid "New Event"
@@ -3579,6 +3760,16 @@ msgstr ""
 msgid ""
 "There is no OpenPGP key for {addr}. Ask them for their public key, or fetch "
 "it under Settings, OpenPGP."
+msgstr ""
+
+msgid "Encrypt to keys you have not checked?"
+msgstr ""
+
+msgid ""
+"Nothing confirms that the keys for {addresses} belong to them. If one is "
+"someone else's, that person can read this message and the recipient cannot. "
+"To check a key, compare its fingerprint with its owner and trust it under "
+"Settings, OpenPGP. Send Anyway does not ask about these keys again."
 msgstr ""
 
 msgid "Send later"
@@ -5148,9 +5339,6 @@ msgstr ""
 msgid "Could not translate: {why}"
 msgstr ""
 
-msgid "Try Again"
-msgstr ""
-
 msgid "Translated from {language} by {service}."
 msgstr ""
 
@@ -5215,6 +5403,9 @@ msgid ""
 msgstr ""
 
 msgid "Status bar ({n})"
+msgstr ""
+
+msgid "Ask Again"
 msgstr ""
 
 msgid "All keys"
@@ -5296,6 +5487,12 @@ msgid "Fetch by address…"
 msgstr ""
 
 msgid "Search by name, address or key ID"
+msgstr ""
+
+msgid "Unchecked keys you encrypt to"
+msgstr ""
+
+msgid "Send Anyway stopped the warning for these keys."
 msgstr ""
 
 msgid "No keys from other people yet."
@@ -5925,12 +6122,9 @@ msgid ""
 "and Trash are hidden again."
 msgstr ""
 
-msgid "Reset"
-msgstr ""
-
 msgid ""
-"Accounts, preferences, filters, tags and layout, in one file. Passwords and "
-"OpenPGP keys are not included."
+"Accounts, preferences, filters, tags and layout, in one file. Passwords, "
+"OAuth client secrets and OpenPGP keys are not included."
 msgstr ""
 
 msgid "Export settings"
@@ -5998,6 +6192,98 @@ msgstr ""
 msgid "Clock"
 msgstr ""
 
+msgid ""
+"While it is on, this page decides the layout in place of the other settings. "
+"Ctrl+Shift+F or the main menu turns it on."
+msgstr ""
+
+msgid "Start in Focus Mode"
+msgstr ""
+
+msgid "Fold the sidebar to the icon rail"
+msgstr ""
+
+msgid "Unread counts"
+msgstr ""
+
+msgid "Unread dots instead of counts"
+msgstr ""
+
+msgid "Expand the sidebar on hover"
+msgstr ""
+
+msgid "Hide the accounts in the sidebar"
+msgstr ""
+
+msgid "Only the unified section stays."
+msgstr ""
+
+msgid "Fold up the accounts"
+msgstr ""
+
+msgid "Collapses expanded accounts into their avatars"
+msgstr ""
+
+msgid "Fold accounts with one click"
+msgstr ""
+
+msgid "Fold up the unified rows"
+msgstr ""
+
+msgid "Unified"
+msgstr ""
+
+msgid "Inboxes"
+msgstr ""
+
+msgid "Snoozed"
+msgstr ""
+
+msgid "Sections"
+msgstr ""
+
+msgid "Favorites"
+msgstr ""
+
+msgid "Show column headings"
+msgstr ""
+
+msgid "Preview lines"
+msgstr ""
+
+msgid "Fold the message list's header"
+msgstr ""
+
+msgid "Everything but the sidebar toggle goes into ⋯."
+msgstr ""
+
+msgid "Hide sender avatars"
+msgstr ""
+
+msgid "Hide the subject"
+msgstr ""
+
+msgid "Tag chips hide with it."
+msgstr ""
+
+msgid "Tags and labels under the text"
+msgstr ""
+
+msgid "Hide stars"
+msgstr ""
+
+msgid "Hide attachment icons"
+msgstr ""
+
+msgid "Fold the reading pane's toolbar"
+msgstr ""
+
+msgid "Every button goes into its ⋯ menu."
+msgstr ""
+
+msgid "Open messages in Reader View."
+msgstr ""
+
 msgid "Instant new mail (push)"
 msgstr ""
 
@@ -6061,16 +6347,10 @@ msgstr ""
 msgid "Automatic uses single lines in wide windows."
 msgstr ""
 
-msgid "Preview lines"
-msgstr ""
-
 msgid "Off also stops downloading previews."
 msgstr ""
 
 msgid "Group by date"
-msgstr ""
-
-msgid "Tags and labels under the text"
 msgstr ""
 
 msgid "Gives the subject its full width."
@@ -6112,9 +6392,6 @@ msgid ""
 "them. Due Date shows only for Microsoft 365 mail."
 msgstr ""
 
-msgid "Show column headings"
-msgstr ""
-
 msgid "Fit columns to the list"
 msgstr ""
 
@@ -6130,13 +6407,10 @@ msgstr ""
 msgid "Always load remote content"
 msgstr ""
 
-msgid "Remote content can tell a sender when and where you read."
-msgstr ""
-
 msgid "Pre-load remote content for the next messages"
 msgstr ""
 
-msgid "Their senders can tell they were opened."
+msgid "Remove trackers from links"
 msgstr ""
 
 msgid "Warn when remote content is blocked"
@@ -6148,11 +6422,6 @@ msgstr ""
 msgid "Warn when the addressing doesn't match"
 msgstr ""
 
-msgid ""
-"The badge beside the sender stays. A possible forgery always shows the "
-"banner."
-msgstr ""
-
 msgid "Use Gravatar when a contact has no photo"
 msgstr ""
 
@@ -6162,14 +6431,26 @@ msgstr ""
 msgid "Show sender logos"
 msgstr ""
 
-msgid ""
-"Most are fetched from the sender's domain, which learns your IP address."
-msgstr ""
-
 msgid "Send read receipts"
 msgstr ""
 
-msgid "A receipt tells the sender when you opened the message."
+#. Not "On This Computer": that names an account kind.
+msgid "Stored Mail"
+msgstr ""
+
+msgid "Encrypt stored mail"
+msgstr ""
+
+msgid "Encrypt Stored Mail?"
+msgstr ""
+
+msgid ""
+"Mail stored on this computer will be encrypted at the next start which can "
+"take a few minutes. Earlier versions of the app cannot open it. Turn this "
+"setting off and restart before going back to an older version."
+msgstr ""
+
+msgid "Encrypt"
 msgstr ""
 
 msgid "Open at startup"
@@ -6192,9 +6473,6 @@ msgstr ""
 msgid "Chevron placement"
 msgstr ""
 
-msgid "Fold accounts with one click"
-msgstr ""
-
 msgid "When off, only its chevron or a double click activates the fold."
 msgstr ""
 
@@ -6202,9 +6480,6 @@ msgid "Show Attachments Browser"
 msgstr ""
 
 msgid "Browse every account's attachments in one place."
-msgstr ""
-
-msgid "Expand the sidebar on hover"
 msgstr ""
 
 msgid "Hovering the icon rail floats the full sidebar out."
@@ -6225,28 +6500,13 @@ msgstr ""
 msgid "A count turns grey once you have looked at the folder."
 msgstr ""
 
-msgid "Unified"
-msgstr ""
-
 msgid "Shown only with more than one account."
-msgstr ""
-
-msgid "Inboxes"
-msgstr ""
-
-msgid "Snoozed"
 msgstr ""
 
 msgid "Shown only while mail is snoozed."
 msgstr ""
 
-msgid "Unread counts"
-msgstr ""
-
 msgid "Shown on the unified rows while they are folded up."
-msgstr ""
-
-msgid "Sections"
 msgstr ""
 
 msgid "Section style"
@@ -6262,9 +6522,6 @@ msgid "Favorites placement"
 msgstr ""
 
 msgid "Icon rail"
-msgstr ""
-
-msgid "Unread dots instead of counts"
 msgstr ""
 
 msgid "The count stays in the tooltip."
@@ -6572,9 +6829,6 @@ msgid "No accounts yet"
 msgstr ""
 
 msgid "New Message from Template…"
-msgstr ""
-
-msgid "Favorites"
 msgstr ""
 
 msgid "Show each inbox"
@@ -6921,6 +7175,16 @@ msgid "Removing the attachment…"
 msgstr ""
 
 msgid "Could not remove the attachment: {e}"
+msgstr ""
+
+msgid ""
+"GNOME Online Accounts could not provide a sign-in token for {email}. Open "
+"Settings → Online Accounts and sign in again."
+msgstr ""
+
+msgid ""
+"Microsoft did not accept the saved sign-in for {email}. Open Hylki's "
+"Settings → Mail Accounts and sign in to it again."
 msgstr ""
 
 msgid "The attachment is no longer in the message on the server"
@@ -7550,7 +7814,7 @@ msgstr ""
 msgid "Send-as aliases"
 msgstr ""
 
-msgid "Extra addresses this account can send as."
+msgid "Extra names and addresses this account can send as."
 msgstr ""
 
 msgid "Add Alias…"
@@ -7571,6 +7835,12 @@ msgid "Import File…"
 msgstr ""
 
 msgid "Delete Signature"
+msgstr ""
+
+msgid "Sender name"
+msgstr ""
+
+msgid "Replaces the account's name in From. Aliases keep their own."
 msgstr ""
 
 msgid "Start messages with this signature"
@@ -7681,9 +7951,6 @@ msgstr ""
 msgid "For Gmail and others that file sent mail themselves."
 msgstr ""
 
-msgid "Templates"
-msgstr ""
-
 msgid "Hidden Folders"
 msgstr ""
 
@@ -7790,59 +8057,6 @@ msgid ""
 msgstr ""
 
 msgid "Always fold the right group into ⋯"
-msgstr ""
-
-msgid ""
-"The parts switched on below hide while Focus Mode is on. Activated by "
-"Ctrl+Shift+F or the main menu."
-msgstr ""
-
-msgid "Start in Focus Mode"
-msgstr ""
-
-msgid "Fold the reading pane's toolbar"
-msgstr ""
-
-msgid "Every button goes into its ⋯ menu."
-msgstr ""
-
-msgid "Fold the message list's header"
-msgstr ""
-
-msgid "Everything but the sidebar toggle goes into ⋯."
-msgstr ""
-
-msgid "Hide the accounts in the sidebar"
-msgstr ""
-
-msgid "Only the unified section stays."
-msgstr ""
-
-msgid "Fold up the unified rows"
-msgstr ""
-
-msgid "Hide sender avatars"
-msgstr ""
-
-msgid "Hide the preview text"
-msgstr ""
-
-msgid "One line of preview text"
-msgstr ""
-
-msgid "Hide the subject"
-msgstr ""
-
-msgid "Tag chips hide with it."
-msgstr ""
-
-msgid "Fold the sidebar to the icon rail"
-msgstr ""
-
-msgid "Hovering it slides the full sidebar out."
-msgstr ""
-
-msgid "Open messages in Reader View."
 msgstr ""
 
 msgid "Compose in the main window"
@@ -8237,6 +8451,15 @@ msgid "Paste with Formatting"
 msgstr ""
 
 msgid "Paste as Plain Text"
+msgstr ""
+
+msgid "Cut"
+msgstr ""
+
+msgid "Select All"
+msgstr ""
+
+msgid "Insert Emoji"
 msgstr ""
 
 msgid "Email Client"

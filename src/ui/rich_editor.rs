@@ -282,9 +282,8 @@ impl RichEditor {
         let view = match existing {
             Some(v) => v,
             None => {
-                let settings = webkit6::Settings::new();
+                let settings = super::message_view::private_settings();
                 settings.set_enable_javascript(false);
-                settings.set_enable_developer_extras(false);
                 let v = webkit6::WebView::builder()
                     .web_context(&super::message_view::shared_web_context())
                     .settings(&settings)
@@ -684,7 +683,7 @@ mod pinned_tests {
         assert_eq!(fnv(HISTORY_SCRIPT), (1287, 0x8e997368982bb599));
         assert_eq!(fnv(EMOJI_SCRIPT), (1621, 0x748b009b19f3f0ec));
         assert_eq!(fnv(LINES_SCRIPT), (5153, 0xb927290405c83fda));
-        assert_eq!(fnv(PASTE_SCRIPT), (40419, 0xc68b9a6a876b9791));
+        assert_eq!(fnv(PASTE_SCRIPT), (40845, 0x057c9e0520847603));
     }
 
     #[test]

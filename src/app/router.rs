@@ -292,6 +292,8 @@ impl AppModel {
             msg @ (AppMsg::NewFromTemplate
             | AppMsg::TemplatePickNow
             | AppMsg::TemplatePicked(..)
+            | AppMsg::PickTemplate { .. }
+            | AppMsg::TemplateInsertPicked { .. }
             | AppMsg::SaveDraftMessage(..)
             | AppMsg::SaveTemplateMessage(..)
             | AppMsg::AutoSaveDraft { .. }
@@ -491,6 +493,7 @@ impl AppModel {
             | PrefOutput::SetReceipts(..)
             | PrefOutput::SetAutoRemoteContent(..)
             | PrefOutput::SetRemoteAhead(..)
+            | PrefOutput::SetCleanLinks(..)
             | PrefOutput::SetThreading(..)
             | PrefOutput::SetThreadExpansion(..)
             | PrefOutput::SetThreadRowNewest(..)
