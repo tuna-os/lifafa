@@ -195,12 +195,19 @@ The workflow keeps its builds fast with caches:
 
 A local build follows the same steps as `fork-release.yml`. It needs
 `flatpak-builder`, the GNOME 50 SDK, and the `rust-stable` and `golang`
-extensions for 25.08 (see [HELPERS.md](HELPERS.md)):
+extensions for 25.08 (see [HELPERS.md](HELPERS.md)), and
+`flatpak-cargo-generator.py` from
+[flatpak-builder-tools](https://github.com/flatpak/flatpak-builder-tools/tree/master/cargo),
+which writes `cargo-sources.json` and runs on Python 3 with the `aiohttp` and
+`tomlkit` modules installed. It is not in this repository; the workflow
+downloads it as the `curl` line below does:
 
 ```sh
 git submodule update --init --recursive
 sh native/tuta-unofficial-sdk/prepare.sh
-flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+curl -fsSL -o /tmp/flatpak-cargo-generator.py \
+    https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py
+python3 /tmp/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
 
 rsync -a --delete --exclude=.git --exclude=/target \
     --exclude=/native/tuta-unofficial-sdk/target \

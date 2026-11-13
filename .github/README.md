@@ -13,9 +13,8 @@ installs beside upstream Hylki and shares none of its state.
 Lifafa ships as a Flatpak for x86_64 and aarch64. The runtime (GNOME) comes
 from [Flathub](https://flathub.org/setup), which has to be set up first.
 
-**From the signed Flatpak repository** (coming with the first release
-published there, v1.47.1-tuna6). One command adds the repository and installs
-the app:
+**From the signed Flatpak repository** (from v1.47.1-tuna6 on). One command
+adds the repository and installs the app:
 
 ```sh
 flatpak install --user https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakref
@@ -94,13 +93,19 @@ WebAuthn) are not supported as a second factor for Tuta or Proton.
 
 Lifafa is built as a Flatpak from a rebranded copy of the tree. It needs
 `flatpak-builder`, the GNOME 50 SDK, and the `rust-stable` and `golang` SDK
-extensions for 25.08:
+extensions for 25.08. `cargo-sources.json` is written by
+`flatpak-cargo-generator.py`, which is not in this repository: it comes from
+[flatpak-builder-tools](https://github.com/flatpak/flatpak-builder-tools/tree/master/cargo)
+and runs on Python 3 with the `aiohttp` and `tomlkit` modules installed.
+`fork-release.yml` downloads it the same way:
 
 ```sh
 git clone --recurse-submodules https://github.com/tuna-os/lifafa.git
 cd lifafa
 sh native/tuta-unofficial-sdk/prepare.sh
-flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+curl -fsSL -o /tmp/flatpak-cargo-generator.py \
+    https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py
+python3 /tmp/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
 
 rsync -a --delete --exclude=.git --exclude=/target \
     --exclude=/native/tuta-unofficial-sdk/target \
