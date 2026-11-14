@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Development moved to [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) (`lifafa/`) on 2026-11-13.** Report problems in [its issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Alifafa) with the `lifafa` label; releases are tagged `lifafa-v*` in [its releases](https://github.com/tuna-os/gtk-office-suite/releases). This repository takes no new work and will be archived (#21). Existing installs keep updating.
+
 <p align="center">
   <img src="data/repo/logo.png" width="120" alt="Hylki logo">
 </p>
