@@ -226,22 +226,18 @@ jobs:
         # helper's is committed in tuta-unofficial-sdk, whose CI keeps it
         # current.
         run: |
+          # Pinned to one upstream commit and checked against its sha256, as
+          # this job holds the signing key.
+          gen_sha=41c20aa10819cdb2a4f3ca171758a96d1955c018
+          gen_sum=0a2db6be87d75910facef28ab46d4d6460802e8419ab850d0caa6a364d26b380
           curl -fsSL -o /tmp/gen-cargo-sources.py \
-            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py
+            "https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/${gen_sha}/cargo/flatpak-cargo-generator.py"
+          echo "${gen_sum}  /tmp/gen-cargo-sources.py" | sha256sum -c -
           vendor() {
-            for attempt in 1 2 3; do
-              if python3 /tmp/gen-cargo-sources.py "$1/Cargo.lock" -o "$1/cargo-sources.json" 2>/tmp/gen.err; then
-                break
-              fi
-              cat /tmp/gen.err
-              module="$(sed -n "s/.*No module named '\([^']*\)'.*/\1/p" /tmp/gen.err | head -1)"
-              if [ -z "$module" ]; then
-                echo "generator failed for a reason other than a missing module" >&2
-                exit 1
-              fi
-              echo "installing missing module: $module (attempt $attempt)"
-              pip install --break-system-packages "$module"
-            done
+            if ! python3 /tmp/gen-cargo-sources.py "$1/Cargo.lock" -o "$1/cargo-sources.json"; then
+              echo "cargo source generator failed (a missing Python module is not installed on the fly)" >&2
+              exit 1
+            fi
             test -s "$1/cargo-sources.json"
           }
           vendor .
