@@ -133,8 +133,9 @@ closes it.
 
 `GITHUB_TOKEN` may not push a commit that changes `.github/workflows`. When
 upstream changes its workflows, the push fails and the run says so. Merge
-that one by hand, or add an `UPSTREAM_SYNC_TOKEN` secret holding a token with
-the `workflow` scope; the job pushes with it when it is set.
+that one by hand, or add an `UPSTREAM_SYNC_SSH_KEY` secret holding the private
+key of a deploy key with write access; the job checks out and pushes over SSH
+with it when it is set.
 
 ## Building
 
