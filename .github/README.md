@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Development moved to [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) (`lifafa/`) on 2026-11-13.** Report problems in [its issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Alifafa) with the `lifafa` label; releases are tagged `lifafa-v*` in [its releases](https://github.com/tuna-os/gtk-office-suite/releases). This repository takes no new work and will be archived ([#21](https://github.com/tuna-os/lifafa/issues/21)). Existing installs keep updating.
+
 # Lifafa
 
 Lifafa (`org.tunaos.lifafa`) is the email client of the TunaOS office suite,
@@ -152,7 +155,10 @@ libraries they link are in [fork/HELPERS.md](../fork/HELPERS.md#licences).
 ## Issues
 
 Report problems with Lifafa, and anything about Tuta or Proton accounts, on
-[tuna-os/lifafa's issues](https://github.com/tuna-os/lifafa/issues). A bug that
+[tuna-os/gtk-office-suite's issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Alifafa)
+with the `lifafa` label; this repository takes no new issues ([#21](https://github.com/tuna-os/lifafa/issues/21)). Report
+security issues privately through
+[gtk-office-suite's vulnerability reporting](https://github.com/tuna-os/gtk-office-suite/security/advisories/new). A bug that
 also happens in upstream Hylki belongs on
 [hyprlab/hylki](https://github.com/hyprlab/hylki/issues); please don't report
 Lifafa's Tuta or Proton accounts there.
