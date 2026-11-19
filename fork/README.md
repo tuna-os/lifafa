@@ -14,7 +14,8 @@ which installs beside upstream Hylki and shares none of its state.
 Neither Tuta nor Proton endorses third-party clients built this way; use them
 knowing that. What belongs in the fork and what goes upstream, and how
 touchpoints are kept small, is in [MAINTAINING.md](MAINTAINING.md). Report
-problems on [this repository's issues](https://github.com/tuna-os/lifafa/issues).
+problems on [tuna-os/gtk-office-suite's issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Alifafa)
+with the `lifafa` label: development moved there on 2026-11-13 ([#21](https://github.com/tuna-os/lifafa/issues/21)).
 
 ## What is in this directory
 
