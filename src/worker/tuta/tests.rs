@@ -497,7 +497,6 @@ async fn read_marks_follow_the_helpers_outcomes() {
         &uids,
         true,
         Some(&cache),
-        &|_| {},
     )
     .await;
     assert_eq!(applied, [hash_uid("l/1")]);

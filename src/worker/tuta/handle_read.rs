@@ -90,8 +90,7 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
                 }
                 continue;
             }
-            match tuta_fetch_raw(account, account_id, state, &path, uid, cache.as_ref(), emit).await
-            {
+            match tuta_fetch_raw(account, account_id, state, &path, uid, cache.as_ref()).await {
                 Ok(raw) => {
                     let (body, check, has_attachments) = render_raw(&raw);
                     if let Some(c) = cache.as_ref() {
@@ -155,7 +154,7 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
             emit(WorkerEvent::AttachmentsPending { path, message_id });
             return;
         }
-        match tuta_fetch_raw(account, account_id, state, &path, uid, cache.as_ref(), emit).await {
+        match tuta_fetch_raw(account, account_id, state, &path, uid, cache.as_ref()).await {
             Ok(raw) => {
                 let items = extract_attachments(&raw);
                 if let Some(c) = cache.as_ref() {
@@ -183,7 +182,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
     /// A message's MIME, for View Source or for export (Ok) or a reason.
     pub(super) async fn raw_of(&mut self, path: &str, uid: u32) -> Result<Vec<u8>, String> {
         let account_id = self.account_id;
-        let emit = &self.emit;
         tuta_fetch_raw(
             &self.account,
             account_id,
@@ -191,7 +189,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
             path,
             uid,
             self.cache.as_ref(),
-            emit,
         )
         .await
         .map_err(|e| {

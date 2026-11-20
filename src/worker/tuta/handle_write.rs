@@ -31,7 +31,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
             &[uid],
             seen,
             self.cache.as_ref(),
-            emit,
         )
         .await;
         emit(WorkerEvent::SeenSettled { path, uid });
@@ -61,7 +60,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
             &unread,
             true,
             self.cache.as_ref(),
-            emit,
         )
         .await;
         emit(WorkerEvent::FolderUnread {
@@ -351,7 +349,6 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
                     &uids,
                     false,
                     self.cache.as_ref(),
-                    &self.emit,
                 )
                 .await;
                 let moved = tuta_move_uids(

@@ -58,7 +58,6 @@ pub(super) async fn tuta_fetch_raw(
     path: &str,
     uid: u32,
     cache: Option<&Cache>,
-    emit: &impl Fn(WorkerEvent),
 ) -> Result<Vec<u8>, HelperError> {
     let id = tuta_resolve(account, state, path, uid).await?;
     let client = state.client(account)?;
@@ -121,7 +120,6 @@ pub(super) async fn tuta_set_seen(
     uids: &[u32],
     seen: bool,
     cache: Option<&Cache>,
-    emit: &impl Fn(WorkerEvent),
 ) -> Vec<u32> {
     let mut ids = Vec::with_capacity(uids.len());
     let mut by_id = std::collections::HashMap::new();

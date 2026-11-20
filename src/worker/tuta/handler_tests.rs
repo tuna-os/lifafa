@@ -974,8 +974,7 @@ async fn a_body_the_uid_map_lacks_waits_on_a_one_header_snapshot_not_a_listing()
     assert_eq!(ops(&asked), ["sync", "message"]);
     assert_eq!(request(&asked, "message")["id"], "l/7");
     assert!(errors(&events).is_empty());
-    assert!(events
-        .borrow()
-        .iter()
-        .any(|e| matches!(e, WorkerEvent::Body { message_id: 42, body, .. } if body.contains("Hi"))));
+    assert!(events.borrow().iter().any(
+        |e| matches!(e, WorkerEvent::Body { message_id: 42, body, .. } if body.contains("Hi"))
+    ));
 }
