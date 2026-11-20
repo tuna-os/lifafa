@@ -27,8 +27,10 @@ use crate::worker::WorkerEvent;
 /// well inside its 90-second limit.
 pub(super) const TUTA_FIRST_PAGE: usize = 100;
 
-/// Headers one background step asks for.
-pub(super) const TUTA_BACKFILL_CHUNK: usize = 200;
+/// Headers one background step asks for. The helper loads each with a
+/// request of its own, and a request the user is waiting on (a click on a
+/// message) waits for the step in progress, so a step is kept to seconds.
+pub(super) const TUTA_BACKFILL_CHUNK: usize = 25;
 
 /// How long a folder's index is trusted before opening it indexes it
 /// again, catching mail deleted elsewhere.
@@ -419,9 +421,11 @@ pub(super) async fn tuta_backfill_with(
     };
     match job.runs.as_mut() {
         None => {
+            // The snapshot is all a one-header sync costs: the runs of
+            // missing mail are fetched a step each after it.
             let since = crate::datefmt::now();
             let t = tuta_id.clone();
-            let page = match run(move || sync(&client, Some(&t), TUTA_BACKFILL_CHUNK, 0)).await {
+            let page = match run(move || sync(&client, Some(&t), 1, 0)).await {
                 Ok(page) => page,
                 Err(e) => {
                     tracing::warn!("[account {account_id}] index of {}: {}", job.path, e.code);

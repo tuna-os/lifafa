@@ -948,3 +948,33 @@ async fn an_import_is_refused_here_when_too_large_or_the_folder_is_gone() {
         .unwrap_err()
         .contains("no longer on the server"));
 }
+
+#[tokio::test]
+async fn a_body_the_uid_map_lacks_waits_on_a_one_header_snapshot_not_a_listing() {
+    // A worker started from the cache knows no ids: the click finds the
+    // message's id in the folder's snapshot, which one header brings, and
+    // never waits on a listing page that loads each header in turn.
+    let (transport, asked) = fake(|op, request| match op {
+        "sync" if request["limit"] == 1 => Ok(sync_reply(
+            request,
+            &[],
+            json!([header("l/9", 2_000_000, false)]),
+            json!(["l/9", "l/7"]),
+        )),
+        "message" => Ok(json!({
+            "header": header("l/7", 1_000_000, false),
+            "html": "<p>Hi</p>", "headers": "", "to": [], "cc": [], "reply_to": [],
+            "attachments": []
+        })),
+        _ => Err("unsupported_operation"),
+    });
+    let (mut w, events) = worker(transport);
+    let uid = cache_row(&w, "Inbox", "l/7");
+    w.on_load_bodies(vec![(42, uid)], "Inbox".into()).await;
+    assert_eq!(ops(&asked), ["sync", "message"]);
+    assert_eq!(request(&asked, "message")["id"], "l/7");
+    assert!(errors(&events).is_empty());
+    assert!(events.borrow().iter().any(
+        |e| matches!(e, WorkerEvent::Body { message_id: 42, body, .. } if body.contains("Hi"))
+    ));
+}
