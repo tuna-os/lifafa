@@ -7,6 +7,13 @@ since the last tag ([MAINTAINING.md](MAINTAINING.md#releases)).
 
 ## Unreleased
 
+- **Fixed: Tuta messages took a minute or more to open.** Opening a
+  message the account had not loaded since Lifafa started listed its whole
+  folder page first, a request per header, and the background index held
+  the account for a minute at a time listing 200 headers per folder just to
+  learn its mail ids. Both now ask for one header, which brings the
+  folder's ids in seconds, and the index fetches missing mail 25 headers a
+  step, so a click waits seconds rather than minutes.
 - **Added: updates through `flatpak update`.** Lifafa is published as a
   signed Flatpak repository on GitHub Pages; install it with
   `flatpak install --user https://tuna-os.github.io/lifafa/org.tunaos.lifafa.flatpakref`.

@@ -14,23 +14,33 @@ use crate::worker::tuta::mime::mime_message;
 use crate::worker::tuta::wire::{create_folder, mark_read, message, move_ids, sync};
 use crate::worker::WorkerEvent;
 
-/// A message uid's compound id, listing the folder once when the uid map
-/// does not have it (a start from the cache, or a message moved since):
-/// the first page of a listing names every id in the folder.
+/// A message uid's compound id, from the folder's id snapshot when the uid
+/// map does not have it (a start from the cache, or a message moved since).
+/// The snapshot comes with a one-header sync: a listing page loads each of
+/// its headers with a request of its own, which kept a click on a message
+/// waiting half a minute or more for its body.
 pub(super) async fn tuta_resolve(
     account: &AccountConfig,
-    account_id: u32,
     state: &mut TutaState,
     path: &str,
     uid: u32,
-    cache: Option<&Cache>,
-    emit: &impl Fn(WorkerEvent),
 ) -> Result<String, HelperError> {
     if let Some(id) = state.uids.get(&uid) {
         return Ok(id.clone());
     }
-    let folder_id = state.folders.get(path).map_or(0, |(id, _)| *id);
-    tuta_load_folder(account, account_id, folder_id, path, cache, state, emit).await?;
+    let (_, folder) = state
+        .folders
+        .get(path)
+        .cloned()
+        .ok_or_else(|| HelperError::new("folder_not_found"))?;
+    let client = state.client(account)?;
+    let page = run(move || sync(&client, Some(&folder), 1, 0)).await?;
+    let ids = page
+        .all_ids
+        .ok_or_else(|| HelperError::new("invalid_response"))?;
+    for id in ids {
+        state.uids.insert(hash_uid(&id), id);
+    }
     state
         .uids
         .get(&uid)
@@ -50,7 +60,7 @@ pub(super) async fn tuta_fetch_raw(
     cache: Option<&Cache>,
     emit: &impl Fn(WorkerEvent),
 ) -> Result<Vec<u8>, HelperError> {
-    let id = tuta_resolve(account, account_id, state, path, uid, cache, emit).await?;
+    let id = tuta_resolve(account, state, path, uid).await?;
     let client = state.client(account)?;
     let (raw, conversation) = run(move || {
         let reply = message(&client, &id)?;
@@ -116,7 +126,7 @@ pub(super) async fn tuta_set_seen(
     let mut ids = Vec::with_capacity(uids.len());
     let mut by_id = std::collections::HashMap::new();
     for &uid in uids {
-        if let Ok(id) = tuta_resolve(account, account_id, state, path, uid, cache, emit).await {
+        if let Ok(id) = tuta_resolve(account, state, path, uid).await {
             by_id.insert(id.clone(), uid);
             ids.push(id);
         }
@@ -206,7 +216,7 @@ pub(super) async fn tuta_move_ids(
     let mut ids = Vec::with_capacity(uids.len());
     let mut by_id = std::collections::HashMap::new();
     for &uid in uids {
-        match tuta_resolve(account, account_id, state, path, uid, cache, emit).await {
+        match tuta_resolve(account, state, path, uid).await {
             Ok(id) => {
                 by_id.insert(id.clone(), uid);
                 ids.push(id);

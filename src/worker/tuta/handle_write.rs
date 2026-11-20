@@ -215,16 +215,7 @@ impl<E: Fn(WorkerEvent)> TutaWorker<E> {
 
     /// A uid's compound id in `path`.
     pub(super) async fn resolve(&mut self, path: &str, uid: u32) -> Result<String, HelperError> {
-        tuta_resolve(
-            &self.account,
-            self.account_id,
-            &mut self.state,
-            path,
-            uid,
-            self.cache.as_ref(),
-            &self.emit,
-        )
-        .await
+        tuta_resolve(&self.account, &mut self.state, path, uid).await
     }
 
     /// Show a folder as the server has it, after a change that did not go.
