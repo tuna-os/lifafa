@@ -7,6 +7,20 @@ since the last tag ([MAINTAINING.md](MAINTAINING.md#releases)).
 
 ## Unreleased
 
+- **Fixed: secure connections could trust a withdrawn certificate
+  authority.** JMAP and Microsoft 365 mail, the sign-in token requests,
+  cloud uploads and remote pictures checked a server's certificate against
+  a built-in list that still held an emSign root whose intermediate keys
+  are public, so someone on the network path could pose as those servers.
+  The list and the checker are updated (webpki-roots 1.0.11,
+  rustls-webpki 0.103.16). IMAP, POP3 and SMTP use the system's
+  certificates and were not affected.
+- **Fixed: published flaws in bundled libraries.** lettre 0.11.24 closes
+  six SMTP flaws, among them a forged server reply on a STARTTLS
+  connection and mail to an address with a quoted local part going to a
+  different address. Also updated: ammonia 4.1.9, pulldown-cmark 0.13.6,
+  rmcp 3.10.0, url 2.5.9, tokio 1.54.1, rustix 1.1.6 and
+  event-listener 5.4.2.
 - **Fixed: confidential Tuta mail sent from the Outbox went out as
   ordinary mail.** A message with **Confidential** on that waited in the
   Outbox (Send Later, a send that failed, quitting during Undo Send) lost
